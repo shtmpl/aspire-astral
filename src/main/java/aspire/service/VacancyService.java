@@ -1,7 +1,6 @@
 package aspire.service;
 
-import aspire.controller.command.IssueRequestCommand;
-import aspire.controller.command.ReadRequestCommand;
+import aspire.controller.request.InputVacancy;
 import aspire.domain.Vacancy;
 
 import java.util.List;
@@ -13,5 +12,11 @@ public interface VacancyService {
     List<Vacancy> findVacancies();
 
     List<Vacancy> findVacanciesByTitle(String title);
+
+    Vacancy createVacancy(InputVacancy request);
+
+    Vacancy updateVacancy(Long id, InputVacancy request);
+
+    Vacancy deleteVacancy(Long id);
 
 }

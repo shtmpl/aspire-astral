@@ -1,12 +1,12 @@
 package aspire;
 
-import aspire.config.YandexApiConfiguration;
+import aspire.config.HeadHunterApiConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import({YandexApiConfiguration.class})
+@Import({HeadHunterApiConfiguration.class})
 public class Application {
 
     public static void main(String[] args) {

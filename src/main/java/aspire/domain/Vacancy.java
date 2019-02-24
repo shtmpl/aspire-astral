@@ -1,5 +1,6 @@
 package aspire.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,9 +11,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Entity
 @Table(name = "vacancy")
@@ -21,7 +24,19 @@ public class Vacancy {
 
     public enum EmploymentType {
         FULL_TIME,
-        PART_TIME
+        PART_TIME;
+
+        public static EmploymentType fromString(String name) {
+            if (name == null || name.trim().isEmpty()) {
+                return null;
+            }
+
+            try {
+                return valueOf(name);
+            } catch (IllegalArgumentException exception) {
+                return null;
+            }
+        }
     }
 
     @Id
@@ -46,6 +61,9 @@ public class Vacancy {
     @ManyToOne
     @JoinColumn(name = "organization_id")
     private Organization organization;
+
+    @OneToMany(mappedBy = "vacancy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VacancyContact> contacts;
 
     public Long getId() {
         return id;
@@ -93,6 +111,14 @@ public class Vacancy {
 
     public void setOrganization(Organization organization) {
         this.organization = organization;
+    }
+
+    public Set<VacancyContact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(Set<VacancyContact> contacts) {
+        this.contacts = contacts;
     }
 
 }

@@ -22,12 +22,6 @@ public class Organization {
     @Column
     private String name;
 
-    @Column
-    private String contact;
-
-    @Column
-    private String phone;
-
     public Long getId() {
         return id;
     }
@@ -42,22 +36,6 @@ public class Organization {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
 }

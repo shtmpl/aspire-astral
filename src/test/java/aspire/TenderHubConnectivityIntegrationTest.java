@@ -17,7 +17,7 @@ public class TenderHubConnectivityIntegrationTest {
 //    private static final String ENDPOINT_SPARK_GET_COMPANY_STRUCTURE = "/Spark/GetCompanyStructure/" + INN;
 //
 //    @Autowired
-//    private YandexApiProperties yandexApiProperties;
+//    private HeadHunterApiProperties yandexApiProperties;
 //
 //    @Test
 //    public void shouldAllowAccessingUsersLoginEndpoint() {

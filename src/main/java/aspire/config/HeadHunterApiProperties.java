@@ -3,7 +3,7 @@ package aspire.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "tender-hub.api")
-public class YandexApiProperties {
+public class HeadHunterApiProperties {
 
     private String url;
     private Auth auth;

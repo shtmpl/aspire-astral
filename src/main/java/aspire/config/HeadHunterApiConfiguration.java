@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(YandexApiProperties.class)
-public class YandexApiConfiguration {
+@EnableConfigurationProperties(HeadHunterApiProperties.class)
+public class HeadHunterApiConfiguration {
 
 }
