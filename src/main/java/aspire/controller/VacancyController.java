@@ -1,6 +1,7 @@
 package aspire.controller;
 
 import aspire.controller.request.InputVacancy;
+import aspire.domain.Employment;
 import aspire.domain.Vacancy;
 import aspire.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -30,8 +32,11 @@ public class VacancyController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Vacancy>> index() {
-        return new ResponseEntity<>(vacancyService.findVacancies(), HttpStatus.OK);
+    public ResponseEntity<List<Vacancy>> index(@RequestParam(required = false) String title) {
+        List<Vacancy> vacancies = title == null ?
+                vacancyService.findVacancies() :
+                vacancyService.findVacanciesByTitleLike(title);
+        return new ResponseEntity<>(vacancies, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -41,6 +46,11 @@ public class VacancyController {
 
     @PostMapping("")
     public ResponseEntity<Vacancy> save(@Valid @RequestBody InputVacancy request) {
+        Vacancy vacancy = new Vacancy();
+        vacancy.setTitle(request.getTitle());
+        vacancy.setDescription(request.getDescription());
+        vacancy.setEmployment(Employment.fromString(request.getEmployment()));
+
         return new ResponseEntity<>(vacancyService.createVacancy(request), HttpStatus.OK);
     }
 

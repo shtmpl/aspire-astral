@@ -8,59 +8,58 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "vacancy")
+@Table(name = "vacancy", indexes = {
+        @Index(name = "vacancy_external_id_key", columnList = "external_id", unique = true)})
 @SequenceGenerator(name = "vacancy_id_seq")
 public class Vacancy {
-
-    public enum EmploymentType {
-        FULL_TIME,
-        PART_TIME;
-
-        public static EmploymentType fromString(String name) {
-            if (name == null || name.trim().isEmpty()) {
-                return null;
-            }
-
-            try {
-                return valueOf(name);
-            } catch (IllegalArgumentException exception) {
-                return null;
-            }
-        }
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vacancy_id_seq")
     @Column
     private Long id;
 
+    @Column(unique = true)
+    private Long externalId;
+
+    @Column
+    private Date dateSynchronized;
+
+    @NotBlank
     @Column
     private String title;
 
-    @Lob
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal salaryFrom;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal salaryTo;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal salary;
 
     @Enumerated(EnumType.STRING)
     @Column
-    private EmploymentType employmentType;
+    private Employment employment;
 
     @ManyToOne
-    @JoinColumn(name = "organization_id")
-    private Organization organization;
+    @JoinColumn(name = "vacancy_owner_id")
+    private VacancyOwner owner;
 
     @OneToMany(mappedBy = "vacancy", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VacancyContact> contacts;
@@ -71,6 +70,22 @@ public class Vacancy {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(Long externalId) {
+        this.externalId = externalId;
+    }
+
+    public Date getDateSynchronized() {
+        return dateSynchronized;
+    }
+
+    public void setDateSynchronized(Date dateSynchronized) {
+        this.dateSynchronized = dateSynchronized;
     }
 
     public String getTitle() {
@@ -97,20 +112,20 @@ public class Vacancy {
         this.description = description;
     }
 
-    public EmploymentType getEmploymentType() {
-        return employmentType;
+    public Employment getEmployment() {
+        return employment;
     }
 
-    public void setEmploymentType(EmploymentType employmentType) {
-        this.employmentType = employmentType;
+    public void setEmployment(Employment employment) {
+        this.employment = employment;
     }
 
-    public Organization getOrganization() {
-        return organization;
+    public VacancyOwner getOwner() {
+        return owner;
     }
 
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
+    public void setOwner(VacancyOwner owner) {
+        this.owner = owner;
     }
 
     public Set<VacancyContact> getContacts() {

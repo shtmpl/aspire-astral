@@ -1,14 +1,13 @@
 package aspire.controller.request;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 public class InputVacancy {
 
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String title;
 
     private String description;
@@ -17,7 +16,7 @@ public class InputVacancy {
     private BigDecimal salary;
 
     @NotNull
-    private String employmentType;
+    private String employment;
 
     private InputOrganization inputOrganization;
 
@@ -45,12 +44,12 @@ public class InputVacancy {
         this.salary = salary;
     }
 
-    public String getEmploymentType() {
-        return employmentType;
+    public String getEmployment() {
+        return employment;
     }
 
-    public void setEmploymentType(String employmentType) {
-        this.employmentType = employmentType;
+    public void setEmployment(String employment) {
+        this.employment = employment;
     }
 
     public InputOrganization getInputOrganization() {

@@ -13,6 +13,8 @@ public interface VacancyService {
 
     List<Vacancy> findVacanciesByTitle(String title);
 
+    List<Vacancy> findVacanciesByTitleLike(String title);
+
     Vacancy createVacancy(InputVacancy request);
 
     Vacancy updateVacancy(Long id, InputVacancy request);

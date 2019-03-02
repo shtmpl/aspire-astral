@@ -2,7 +2,8 @@ package aspire.service;
 
 import aspire.controller.request.InputOrganization;
 import aspire.controller.request.InputVacancy;
-import aspire.domain.Organization;
+import aspire.domain.Employment;
+import aspire.domain.VacancyOwner;
 import aspire.domain.Vacancy;
 import aspire.repository.LocalVacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,14 @@ public class DefaultVacancyService implements VacancyService {
 
     private final LocalVacancyRepository localVacancyRepository;
 
-    private final OrganizationService organizationService;
+    private final VacancyOwnerService vacancyOwnerService;
 
     @Autowired
     public DefaultVacancyService(LocalVacancyRepository localVacancyRepository,
-                                 OrganizationService organizationService) {
+                                 VacancyOwnerService vacancyOwnerService) {
         this.localVacancyRepository = localVacancyRepository;
 
-        this.organizationService = organizationService;
+        this.vacancyOwnerService = vacancyOwnerService;
     }
 
     @Override
@@ -43,6 +44,11 @@ public class DefaultVacancyService implements VacancyService {
     }
 
     @Override
+    public List<Vacancy> findVacanciesByTitleLike(String title) {
+        return localVacancyRepository.findAllByTitleLike(title);
+    }
+
+    @Override
     public Vacancy createVacancy(InputVacancy input) {
         Vacancy vacancy = new Vacancy();
         if (input.getTitle() != null) {
@@ -57,17 +63,17 @@ public class DefaultVacancyService implements VacancyService {
             vacancy.setSalary(input.getSalary());
         }
 
-        Vacancy.EmploymentType employmentType = Vacancy.EmploymentType.fromString(input.getEmploymentType());
-        if (employmentType != null) {
-            vacancy.setEmploymentType(employmentType);
+        Employment employment = Employment.fromString(input.getEmployment());
+        if (employment != null) {
+            vacancy.setEmployment(employment);
         }
 
         InputOrganization inputOrganization = input.getInputOrganization();
         if (inputOrganization != null) {
-            Organization organization = organizationService
+            VacancyOwner vacancyOwner = vacancyOwnerService
                     .findOrSaveOrganizationByName(inputOrganization.getName());
 
-            vacancy.setOrganization(organization);
+            vacancy.setOwner(vacancyOwner);
         }
 
         return localVacancyRepository.save(vacancy);
@@ -94,10 +100,10 @@ public class DefaultVacancyService implements VacancyService {
                 found.setSalary(newSalary);
             }
 
-            Vacancy.EmploymentType oldEmploymentType = found.getEmploymentType();
-            Vacancy.EmploymentType newEmploymentType = Vacancy.EmploymentType.fromString(input.getEmploymentType());
-            if (newEmploymentType != null && !newEmploymentType.equals(oldEmploymentType)) {
-                found.setEmploymentType(newEmploymentType);
+            Employment oldEmployment = found.getEmployment();
+            Employment newEmployment = Employment.fromString(input.getEmployment());
+            if (newEmployment != null && !newEmployment.equals(oldEmployment)) {
+                found.setEmployment(newEmployment);
             }
 
             return localVacancyRepository.save(found);
