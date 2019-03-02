@@ -1,5 +1,6 @@
 package aspire.domain;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public enum Employment {
@@ -13,11 +14,10 @@ public enum Employment {
             return null;
         }
 
-        try {
-            return valueOf(name);
-        } catch (IllegalArgumentException exception) {
-            return OTHER;
-        }
+        return Arrays.stream(values())
+                .filter((Employment it) -> name.equalsIgnoreCase(it.toString()))
+                .findFirst()
+                .orElse(OTHER);
     }
 
 }

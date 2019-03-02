@@ -10,7 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -21,8 +20,10 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "vacancy", indexes = {
-        @Index(name = "vacancy_external_id_key", columnList = "external_id", unique = true)})
+@Table(name = "vacancy",
+        indexes = {
+                @Index(name = "vacancy_id_external_key", columnList = "idExternal", unique = true)
+        })
 @SequenceGenerator(name = "vacancy_id_seq")
 public class Vacancy {
 
@@ -31,11 +32,15 @@ public class Vacancy {
     @Column
     private Long id;
 
-    @Column(unique = true)
-    private Long externalId;
+    @Column
+    private Long idExternal;
 
     @Column
-    private Date dateSynchronized;
+    private Date dateCreated;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Source source;
 
     @NotBlank
     @Column
@@ -59,7 +64,7 @@ public class Vacancy {
 
     @ManyToOne
     @JoinColumn(name = "vacancy_owner_id")
-    private VacancyOwner owner;
+    private Employer employer;
 
     @OneToMany(mappedBy = "vacancy", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VacancyContact> contacts;
@@ -72,20 +77,28 @@ public class Vacancy {
         this.id = id;
     }
 
-    public Long getExternalId() {
-        return externalId;
+    public Long getIdExternal() {
+        return idExternal;
     }
 
-    public void setExternalId(Long externalId) {
-        this.externalId = externalId;
+    public void setIdExternal(Long idExternal) {
+        this.idExternal = idExternal;
     }
 
-    public Date getDateSynchronized() {
-        return dateSynchronized;
+    public Date getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDateSynchronized(Date dateSynchronized) {
-        this.dateSynchronized = dateSynchronized;
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public Source getSource() {
+        return source;
+    }
+
+    public void setSource(Source source) {
+        this.source = source;
     }
 
     public String getTitle() {
@@ -100,16 +113,32 @@ public class Vacancy {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BigDecimal getSalaryFrom() {
+        return salaryFrom;
+    }
+
+    public void setSalaryFrom(BigDecimal salaryFrom) {
+        this.salaryFrom = salaryFrom;
+    }
+
+    public BigDecimal getSalaryTo() {
+        return salaryTo;
+    }
+
+    public void setSalaryTo(BigDecimal salaryTo) {
+        this.salaryTo = salaryTo;
+    }
+
     public BigDecimal getSalary() {
         return salary;
     }
 
     public void setSalary(BigDecimal salary) {
         this.salary = salary;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Employment getEmployment() {
@@ -120,12 +149,12 @@ public class Vacancy {
         this.employment = employment;
     }
 
-    public VacancyOwner getOwner() {
-        return owner;
+    public Employer getEmployer() {
+        return employer;
     }
 
-    public void setOwner(VacancyOwner owner) {
-        this.owner = owner;
+    public void setEmployer(Employer employer) {
+        this.employer = employer;
     }
 
     public Set<VacancyContact> getContacts() {

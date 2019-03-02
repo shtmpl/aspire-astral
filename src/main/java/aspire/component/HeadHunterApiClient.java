@@ -1,4 +1,4 @@
-package aspire.service.external;
+package aspire.component;
 
 import org.springframework.stereotype.Component;
 
