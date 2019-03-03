@@ -43,7 +43,7 @@ public class VacancyServiceImplementation implements VacancyService {
             case REMOTE:
                 return findRemoteVacancies();
             default:
-                throw new OriginUnknownException();
+                throw new OriginUnknownException(String.format("Unknown origin: %s", origin));
         }
     }
 
@@ -63,7 +63,7 @@ public class VacancyServiceImplementation implements VacancyService {
             case REMOTE:
                 return findRemoteVacanciesByTitleContaining(title);
             default:
-                throw new OriginUnknownException();
+                throw new OriginUnknownException(String.format("Unknown origin: %s", origin));
         }
     }
 
@@ -83,7 +83,7 @@ public class VacancyServiceImplementation implements VacancyService {
             case REMOTE:
                 return findRemoteVacancyById(id);
             default:
-                throw new OriginUnknownException();
+                throw new OriginUnknownException(String.format("Unknown origin: %s", origin));
         }
     }
 
