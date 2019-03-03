@@ -1,7 +1,7 @@
 package aspire.controller;
 
-import aspire.service.OriginUnknownException;
-import aspire.service.VacancyNotFoundException;
+import aspire.domain.OriginUndefinedException;
+import aspire.domain.VacancyNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class ApiResponseEntityExceptionHandler {
 
-    @ExceptionHandler(OriginUnknownException.class)
-    public ResponseEntity<String> handleOriginUnknown(OriginUnknownException exception) {
+    @ExceptionHandler(OriginUndefinedException.class)
+    public ResponseEntity<String> handleOriginUnknown(OriginUndefinedException exception) {
         return ResponseEntity.badRequest().body(exception.getMessage());
     }
 

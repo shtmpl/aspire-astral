@@ -3,6 +3,7 @@ package aspire.repository;
 import aspire.domain.Employer;
 import aspire.domain.Employment;
 import aspire.domain.Origin;
+import aspire.domain.Salary;
 import aspire.domain.Vacancy;
 import aspire.domain.VacancyContact;
 import aspire.integration.HeadHunterClient;
@@ -65,8 +66,7 @@ public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepos
         result.setDateCreated(response.getCreatedAt());
         result.setTitle(response.getName());
         result.setDescription(response.getDescription());
-        result.setSalaryFrom(extractVacancySalaryFrom(response));
-        result.setSalaryTo(extractVacancySalaryTo(response));
+        result.setSalary(extractSalary(response));
         result.setEmployment(extractEmployment(response));
         result.setEmployer(extractEmployer(response));
         result.setContacts(extractVacancyContacts(response));
@@ -74,17 +74,26 @@ public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepos
         return result;
     }
 
-    private static BigDecimal extractVacancySalaryFrom(ResponseVacancy response) {
+    private static Salary extractSalary(ResponseVacancy response) {
         if (response.getSalary() == null) {
             return null;
         }
 
-        Long result = response.getSalary().getFrom();
-        if (result == null) {
-            return null;
+        Salary salary = new Salary();
+
+        Long salaryFrom = response.getSalary().getFrom();
+        if (salaryFrom != null) {
+            salary.setFrom(BigDecimal.valueOf(salaryFrom));
         }
 
-        return BigDecimal.valueOf(result);
+        Long salaryTo = response.getSalary().getTo();
+        if (salaryTo != null) {
+            salary.setTo(BigDecimal.valueOf(salaryTo));
+        }
+
+        salary.setCurrency(response.getSalary().getCurrency());
+
+        return salary;
     }
 
     private static BigDecimal extractVacancySalaryTo(ResponseVacancy response) {

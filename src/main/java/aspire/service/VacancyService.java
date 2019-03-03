@@ -7,16 +7,16 @@ import java.util.List;
 
 public interface VacancyService {
 
-    List<Vacancy> findVacancies(Origin origin);
+    List<Vacancy> findVacancies(String origin);
 
-    List<Vacancy> findVacanciesByTitleContaining(Origin origin, String title);
+    List<Vacancy> findVacanciesByTitleContaining(String origin, String title);
 
-    Vacancy findVacancyById(Origin origin, String id);
+    Vacancy findVacancyById(String origin, String id);
 
-    Vacancy createVacancy(Origin origin, Vacancy vacancy);
+    Vacancy createVacancy(String origin, Vacancy vacancy);
 
-    Vacancy updateVacancy(Origin origin, String id, Vacancy vacancy);
+    Vacancy updateVacancy(String origin, String id, Vacancy vacancy);
 
-    Vacancy deleteVacancy(Origin origin, String id);
+    Vacancy deleteVacancy(String origin, String id);
 
 }

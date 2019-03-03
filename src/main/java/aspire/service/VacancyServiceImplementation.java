@@ -2,19 +2,20 @@ package aspire.service;
 
 import aspire.domain.Employment;
 import aspire.domain.Origin;
+import aspire.domain.OriginUndefinedException;
+import aspire.domain.OriginUnsupportedOperationException;
 import aspire.domain.Vacancy;
 import aspire.domain.Employer;
+import aspire.domain.VacancyNotFoundException;
 import aspire.repository.LocalVacancyRepository;
 import aspire.repository.RemoteVacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -36,14 +37,14 @@ public class VacancyServiceImplementation implements VacancyService {
     }
 
     @Override
-    public List<Vacancy> findVacancies(Origin origin) {
+    public List<Vacancy> findVacancies(String origin) {
         switch (origin) {
-            case LOCAL:
+            case Origin.LOCAL:
                 return findLocalVacancies();
-            case REMOTE:
+            case Origin.REMOTE:
                 return findRemoteVacancies();
             default:
-                throw new OriginUnknownException(String.format("Unknown origin: %s", origin));
+                throw new OriginUndefinedException();
         }
     }
 
@@ -56,14 +57,14 @@ public class VacancyServiceImplementation implements VacancyService {
     }
 
     @Override
-    public List<Vacancy> findVacanciesByTitleContaining(Origin origin, String title) {
+    public List<Vacancy> findVacanciesByTitleContaining(String origin, String title) {
         switch (origin) {
-            case LOCAL:
+            case Origin.LOCAL:
                 return findLocalVacanciesByTitleContaining(title);
-            case REMOTE:
+            case Origin.REMOTE:
                 return findRemoteVacanciesByTitleContaining(title);
             default:
-                throw new OriginUnknownException(String.format("Unknown origin: %s", origin));
+                throw new OriginUndefinedException();
         }
     }
 
@@ -76,14 +77,14 @@ public class VacancyServiceImplementation implements VacancyService {
     }
 
     @Override
-    public Vacancy findVacancyById(Origin origin, String id) {
+    public Vacancy findVacancyById(String origin, String id) {
         switch (origin) {
-            case LOCAL:
+            case Origin.LOCAL:
                 return findLocalVacancyById(id);
-            case REMOTE:
+            case Origin.REMOTE:
                 return findRemoteVacancyById(id);
             default:
-                throw new OriginUnknownException(String.format("Unknown origin: %s", origin));
+                throw new OriginUndefinedException();
         }
     }
 
@@ -102,13 +103,16 @@ public class VacancyServiceImplementation implements VacancyService {
     }
 
     @Override
-    public Vacancy createVacancy(Origin origin, Vacancy vacancy) {
-        if (origin == Origin.LOCAL) {
-            return createLocalVacancy(vacancy);
+    public Vacancy createVacancy(String origin, Vacancy vacancy) {
+        switch (origin) {
+            case Origin.LOCAL:
+                return createLocalVacancy(vacancy);
+            case Origin.REMOTE:
+                throw new OriginUnsupportedOperationException(
+                        String.format("Operation: %s not supported for origin: %s", "create", origin));
+            default:
+                throw new OriginUndefinedException();
         }
-
-        throw new OriginUnsupportedOperationException(
-                String.format("Operation: %s not supported for origin: %s", "create", origin));
     }
 
     private Vacancy createLocalVacancy(Vacancy vacancy) {
@@ -145,13 +149,16 @@ public class VacancyServiceImplementation implements VacancyService {
     }
 
     @Override
-    public Vacancy updateVacancy(Origin origin, String id, Vacancy vacancy) {
-        if (origin == Origin.LOCAL) {
-            return updateLocalVacancy(id, vacancy);
+    public Vacancy updateVacancy(String origin, String id, Vacancy vacancy) {
+        switch (origin) {
+            case Origin.LOCAL:
+                return updateLocalVacancy(id, vacancy);
+            case Origin.REMOTE:
+                throw new OriginUnsupportedOperationException(
+                        String.format("Operation: %s not supported for origin: %s", "update", origin));
+            default:
+                throw new OriginUndefinedException();
         }
-
-        throw new OriginUnsupportedOperationException(
-                String.format("Operation: %s not supported for origin: %s", "update", origin));
     }
 
     private Vacancy updateLocalVacancy(String id, Vacancy vacancy) {
@@ -172,17 +179,18 @@ public class VacancyServiceImplementation implements VacancyService {
             found.setDescription(newDescription);
         }
 
-        BigDecimal oldSalaryFrom = found.getSalaryFrom();
-        BigDecimal newSalaryFrom = vacancy.getSalaryFrom();
-        if (newSalaryFrom != null && !newSalaryFrom.equals(oldSalaryFrom)) {
-            found.setSalaryFrom(newSalaryFrom);
-        }
-
-        BigDecimal oldSalaryTo = found.getSalaryTo();
-        BigDecimal newSalaryTo = vacancy.getSalaryTo();
-        if (newSalaryTo != null && !newSalaryTo.equals(oldSalaryTo)) {
-            found.setSalaryTo(newSalaryTo);
-        }
+        // FIXME:
+//        BigDecimal oldSalaryFrom = found.getSalaryFrom();
+//        BigDecimal newSalaryFrom = vacancy.getSalaryFrom();
+//        if (newSalaryFrom != null && !newSalaryFrom.equals(oldSalaryFrom)) {
+//            found.setSalaryFrom(newSalaryFrom);
+//        }
+//
+//        BigDecimal oldSalaryTo = found.getSalaryTo();
+//        BigDecimal newSalaryTo = vacancy.getSalaryTo();
+//        if (newSalaryTo != null && !newSalaryTo.equals(oldSalaryTo)) {
+//            found.setSalaryTo(newSalaryTo);
+//        }
 
         Employment oldEmployment = found.getEmployment();
         Employment newEmployment = vacancy.getEmployment();
@@ -194,13 +202,16 @@ public class VacancyServiceImplementation implements VacancyService {
     }
 
     @Override
-    public Vacancy deleteVacancy(Origin origin, String id) {
-        if (origin == Origin.LOCAL) {
-            return deleteLocalVacancy(id);
+    public Vacancy deleteVacancy(String origin, String id) {
+        switch (origin) {
+            case Origin.LOCAL:
+                return deleteLocalVacancy(id);
+            case Origin.REMOTE:
+                throw new OriginUnsupportedOperationException(
+                        String.format("Operation: %s not supported for origin: %s", "delete", origin));
+            default:
+                throw new OriginUndefinedException();
         }
-
-        throw new OriginUnsupportedOperationException(
-                String.format("Operation: %s not supported for origin: %s", "delete", origin));
     }
 
     private Vacancy deleteLocalVacancy(String id) {

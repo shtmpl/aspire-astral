@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/vacancy")
 public class VacancyController {
 
-    private static final String DEFAULT_ORIGIN = "LOCAL";
+    private static final String DEFAULT_ORIGIN = Origin.LOCAL;
 
     private final VacancyService vacancyService;
 
@@ -37,7 +37,7 @@ public class VacancyController {
 
     @GetMapping("")
     public ResponseEntity<List<Vacancy>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        List<Vacancy> result = vacancyService.findVacancies(Origin.fromString(origin));
+        List<Vacancy> result = vacancyService.findVacancies(origin);
 
         return ResponseEntity.ok(result);
     }
@@ -46,7 +46,7 @@ public class VacancyController {
     public ResponseEntity<List<Vacancy>> lookup(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                                 @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
-            List<Vacancy> result = vacancyService.findVacanciesByTitleContaining(Origin.fromString(origin), params.getFirst("title.like"));
+            List<Vacancy> result = vacancyService.findVacanciesByTitleContaining(origin, params.getFirst("title.like"));
 
             return ResponseEntity.ok(result);
         }
@@ -57,7 +57,7 @@ public class VacancyController {
     @GetMapping("/{id}")
     public ResponseEntity<Vacancy> show(@PathVariable String id,
                                         @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy result = vacancyService.findVacancyById(Origin.fromString(origin), id);
+        Vacancy result = vacancyService.findVacancyById(origin, id);
 
         return ResponseEntity.ok(result);
     }
@@ -67,7 +67,7 @@ public class VacancyController {
                                         @Valid @RequestBody InputVacancy request) {
         Vacancy result = mapToVacancy(request);
 
-        return ResponseEntity.ok(vacancyService.createVacancy(Origin.fromString(origin), result));
+        return ResponseEntity.ok(vacancyService.createVacancy(origin, result));
     }
 
     @PutMapping("/{id}")
@@ -76,13 +76,13 @@ public class VacancyController {
                                           @Valid @RequestBody InputVacancy request) {
         Vacancy result = mapToVacancy(request);
 
-        return ResponseEntity.ok(vacancyService.updateVacancy(Origin.fromString(origin), id, result));
+        return ResponseEntity.ok(vacancyService.updateVacancy(origin, id, result));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Vacancy> delete(@PathVariable String id,
                                           @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy result = vacancyService.deleteVacancy(Origin.fromString(origin), id);
+        Vacancy result = vacancyService.deleteVacancy(origin, id);
 
         return ResponseEntity.ok(result);
     }

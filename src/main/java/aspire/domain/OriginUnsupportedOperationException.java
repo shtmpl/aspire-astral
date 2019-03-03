@@ -1,4 +1,4 @@
-package aspire.service;
+package aspire.domain;
 
 public class OriginUnsupportedOperationException extends RuntimeException {
 

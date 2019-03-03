@@ -1,7 +1,10 @@
 package aspire.domain;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -35,9 +38,8 @@ public class Vacancy {
     @Column
     private String idExternal;
 
-    @Enumerated(EnumType.STRING)
     @Column
-    private Origin origin;
+    private String origin;
 
     @Column
     private Date dateCreated;
@@ -52,11 +54,13 @@ public class Vacancy {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal salaryFrom;
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal salaryTo;
+    @Embedded
+    @AttributeOverrides(value = {
+            @AttributeOverride(name = "currency", column = @Column(name = "salary_currency", length = 3)),
+            @AttributeOverride(name = "from", column = @Column(name = "salary_from", precision = 10, scale = 2)),
+            @AttributeOverride(name = "to", column = @Column(name = "salary_to", precision = 10, scale = 2))
+    })
+    private Salary salary;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -85,11 +89,11 @@ public class Vacancy {
         this.idExternal = idExternal;
     }
 
-    public Origin getOrigin() {
+    public String getOrigin() {
         return origin;
     }
 
-    public void setOrigin(Origin origin) {
+    public void setOrigin(String origin) {
         this.origin = origin;
     }
 
@@ -125,20 +129,12 @@ public class Vacancy {
         this.description = description;
     }
 
-    public BigDecimal getSalaryFrom() {
-        return salaryFrom;
+    public Salary getSalary() {
+        return salary;
     }
 
-    public void setSalaryFrom(BigDecimal salaryFrom) {
-        this.salaryFrom = salaryFrom;
-    }
-
-    public BigDecimal getSalaryTo() {
-        return salaryTo;
-    }
-
-    public void setSalaryTo(BigDecimal salaryTo) {
-        this.salaryTo = salaryTo;
+    public void setSalary(Salary salary) {
+        this.salary = salary;
     }
 
     public Employment getEmployment() {

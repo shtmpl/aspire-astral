@@ -1,23 +1,8 @@
 package aspire.domain;
 
-import java.util.Arrays;
+public class Origin {
 
-public enum Origin {
-
-    LOCAL,
-    REMOTE,
-    UNKNOWN;
-
-    public static Origin fromString(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
-
-        return Arrays
-                .stream(values())
-                .filter((Origin it) -> value.equalsIgnoreCase(it.toString()))
-                .findFirst()
-                .orElse(UNKNOWN);
-    }
+    public static final String LOCAL = "local";
+    public static final String REMOTE = "remote";
 
 }
