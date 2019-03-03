@@ -1,24 +1,22 @@
 package aspire.service;
 
-import aspire.domain.Source;
+import aspire.domain.Origin;
 import aspire.domain.Vacancy;
 
 import java.util.List;
 
 public interface VacancyService {
 
-    List<Vacancy> findVacancies(Source source);
+    List<Vacancy> findVacancies(Origin origin);
 
-    List<Vacancy> findVacanciesByTitle(Source source, String title);
+    List<Vacancy> findVacanciesByTitleContaining(Origin origin, String title);
 
-    List<Vacancy> findVacanciesByTitleContaining(Source source, String title);
+    Vacancy findVacancyById(Origin origin, String id);
 
-    Vacancy findVacancyById(Source source, Long id);
+    Vacancy createVacancy(Origin origin, Vacancy vacancy);
 
-    Vacancy createVacancy(Source source, Vacancy vacancy);
+    Vacancy updateVacancy(Origin origin, String id, Vacancy vacancy);
 
-    Vacancy updateVacancy(Source source, Long id, Vacancy vacancy);
-
-    Vacancy deleteVacancy(Source source, Long id);
+    Vacancy deleteVacancy(Origin origin, String id);
 
 }

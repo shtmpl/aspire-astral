@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface LocalVacancyRepository extends JpaRepository<Vacancy, Long> {
 
-    List<Vacancy> findAllByTitle(String title);
-
     List<Vacancy> findAllByTitleContaining(String title);
 
 }

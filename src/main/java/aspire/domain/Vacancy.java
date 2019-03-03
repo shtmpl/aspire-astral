@@ -33,14 +33,17 @@ public class Vacancy {
     private Long id;
 
     @Column
-    private Long idExternal;
+    private String idExternal;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Origin origin;
 
     @Column
     private Date dateCreated;
 
-    @Enumerated(EnumType.STRING)
     @Column
-    private Source source;
+    private Date datePublished;
 
     @NotBlank
     @Column
@@ -54,9 +57,6 @@ public class Vacancy {
 
     @Column(precision = 10, scale = 2)
     private BigDecimal salaryTo;
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal salary;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -77,12 +77,20 @@ public class Vacancy {
         this.id = id;
     }
 
-    public Long getIdExternal() {
+    public String getIdExternal() {
         return idExternal;
     }
 
-    public void setIdExternal(Long idExternal) {
+    public void setIdExternal(String idExternal) {
         this.idExternal = idExternal;
+    }
+
+    public Origin getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(Origin origin) {
+        this.origin = origin;
     }
 
     public Date getDateCreated() {
@@ -93,12 +101,12 @@ public class Vacancy {
         this.dateCreated = dateCreated;
     }
 
-    public Source getSource() {
-        return source;
+    public Date getDatePublished() {
+        return datePublished;
     }
 
-    public void setSource(Source source) {
-        this.source = source;
+    public void setDatePublished(Date datePublished) {
+        this.datePublished = datePublished;
     }
 
     public String getTitle() {
@@ -131,14 +139,6 @@ public class Vacancy {
 
     public void setSalaryTo(BigDecimal salaryTo) {
         this.salaryTo = salaryTo;
-    }
-
-    public BigDecimal getSalary() {
-        return salary;
-    }
-
-    public void setSalary(BigDecimal salary) {
-        this.salary = salary;
     }
 
     public Employment getEmployment() {

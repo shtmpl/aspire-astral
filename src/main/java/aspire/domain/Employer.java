@@ -25,7 +25,7 @@ public class Employer {
     private Long id;
 
     @Column
-    private Long idExternal;
+    private String idExternal;
 
     @NotBlank
     @Column
@@ -39,11 +39,11 @@ public class Employer {
         this.id = id;
     }
 
-    public Long getIdExternal() {
+    public String getIdExternal() {
         return idExternal;
     }
 
-    public void setIdExternal(Long idExternal) {
+    public void setIdExternal(String idExternal) {
         this.idExternal = idExternal;
     }
 

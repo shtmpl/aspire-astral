@@ -2,7 +2,7 @@ package aspire.controller;
 
 import aspire.controller.request.InputVacancy;
 import aspire.domain.Employment;
-import aspire.domain.Source;
+import aspire.domain.Origin;
 import aspire.domain.Vacancy;
 import aspire.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/vacancy")
 public class VacancyController {
 
-    private static final String DEFAULT_SOURCE = "LOCAL";
+    private static final String DEFAULT_ORIGIN = "LOCAL";
 
     private final VacancyService vacancyService;
 
@@ -36,23 +36,17 @@ public class VacancyController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Vacancy>> index(@RequestParam(defaultValue = DEFAULT_SOURCE) String source) {
-        List<Vacancy> result = vacancyService.findVacancies(Source.fromString(source));
+    public ResponseEntity<List<Vacancy>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        List<Vacancy> result = vacancyService.findVacancies(Origin.fromString(origin));
 
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/lookup")
-    public ResponseEntity<List<Vacancy>> lookup(@RequestParam(defaultValue = DEFAULT_SOURCE) String source,
+    public ResponseEntity<List<Vacancy>> lookup(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                                 @RequestParam MultiValueMap<String, String> params) {
-        if (params.containsKey("title.equal-to")) {
-            List<Vacancy> result = vacancyService.findVacanciesByTitle(Source.fromString(source), params.getFirst("title.equal-to"));
-
-            return ResponseEntity.ok(result);
-        }
-
         if (params.containsKey("title.like")) {
-            List<Vacancy> result = vacancyService.findVacanciesByTitleContaining(Source.fromString(source), params.getFirst("title.like"));
+            List<Vacancy> result = vacancyService.findVacanciesByTitleContaining(Origin.fromString(origin), params.getFirst("title.like"));
 
             return ResponseEntity.ok(result);
         }
@@ -61,34 +55,34 @@ public class VacancyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Vacancy> show(@PathVariable Long id,
-                                        @RequestParam(defaultValue = DEFAULT_SOURCE) String source) {
-        Vacancy result = vacancyService.findVacancyById(Source.fromString(source), id);
+    public ResponseEntity<Vacancy> show(@PathVariable String id,
+                                        @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy result = vacancyService.findVacancyById(Origin.fromString(origin), id);
 
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("")
-    public ResponseEntity<Vacancy> save(@RequestParam(defaultValue = DEFAULT_SOURCE) String source,
+    public ResponseEntity<Vacancy> save(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                         @Valid @RequestBody InputVacancy request) {
         Vacancy result = mapToVacancy(request);
 
-        return ResponseEntity.ok(vacancyService.createVacancy(Source.fromString(source), result));
+        return ResponseEntity.ok(vacancyService.createVacancy(Origin.fromString(origin), result));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vacancy> update(@PathVariable Long id,
-                                          @RequestParam(defaultValue = DEFAULT_SOURCE) String source,
+    public ResponseEntity<Vacancy> update(@PathVariable String id,
+                                          @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                           @Valid @RequestBody InputVacancy request) {
         Vacancy result = mapToVacancy(request);
 
-        return ResponseEntity.ok(vacancyService.updateVacancy(Source.fromString(source), id, result));
+        return ResponseEntity.ok(vacancyService.updateVacancy(Origin.fromString(origin), id, result));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Vacancy> delete(@PathVariable Long id,
-                                          @RequestParam(defaultValue = DEFAULT_SOURCE) String source) {
-        Vacancy result = vacancyService.deleteVacancy(Source.fromString(source), id);
+    public ResponseEntity<Vacancy> delete(@PathVariable String id,
+                                          @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy result = vacancyService.deleteVacancy(Origin.fromString(origin), id);
 
         return ResponseEntity.ok(result);
     }
