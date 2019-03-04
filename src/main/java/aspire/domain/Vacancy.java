@@ -70,7 +70,8 @@ public class Vacancy {
     @JoinColumn(name = "vacancy_owner_id")
     private Employer employer;
 
-    @OneToMany(mappedBy = "vacancy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "vacancy_contact_id")
     private Set<VacancyContact> contacts;
 
     public Long getId() {

@@ -6,6 +6,7 @@ import aspire.domain.OriginUndefinedException;
 import aspire.domain.OriginUnsupportedOperationException;
 import aspire.domain.Vacancy;
 import aspire.domain.Employer;
+import aspire.domain.VacancyContact;
 import aspire.domain.VacancyNotFoundException;
 import aspire.repository.LocalVacancyRepository;
 import aspire.repository.RemoteVacancyRepository;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -130,21 +132,24 @@ public class VacancyServiceImpl implements VacancyService {
             result.setDescription(vacancy.getDescription());
         }
 
-        // FIXME:
-//        if (vacancy.getSalary() != null) {
-//            result.setSalary(vacancy.getSalary());
-//        }
+
+        if (vacancy.getSalary() != null) {
+            result.setSalary(vacancy.getSalary());
+        }
 
         Employment employment = vacancy.getEmployment();
         if (employment != null) {
             result.setEmployment(employment);
         }
 
-        Employer owner = vacancy.getEmployer();
-        if (owner != null) {
-            employerService.findOrSaveEmployer(owner);
+        Employer employer = employerService.findOrSaveEmployer(vacancy.getEmployer());
+        if (employer != null) {
+            result.setEmployer(employer);
+        }
 
-            result.setEmployer(owner);
+        Set<VacancyContact> contacts = vacancy.getContacts();
+        if (contacts != null && !contacts.isEmpty()) {
+            result.setContacts(contacts);
         }
 
         return localVacancyRepository.save(result);

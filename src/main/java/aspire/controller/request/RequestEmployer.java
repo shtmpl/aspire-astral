@@ -3,7 +3,7 @@ package aspire.controller.request;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-public class InputOrganization {
+public class RequestEmployer {
 
     @NotNull
     @NotEmpty

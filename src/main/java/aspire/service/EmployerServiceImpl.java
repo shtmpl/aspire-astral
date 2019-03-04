@@ -18,6 +18,7 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     public Employer findOrSaveEmployer(Employer employer) {
         String name = employer.getName();
+
         return localEmployerRepository.findByName(name)
                 .orElseGet(() -> {
                     Employer result = new Employer();

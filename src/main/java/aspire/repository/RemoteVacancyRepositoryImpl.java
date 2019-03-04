@@ -48,7 +48,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
             items.forEach((ResponseVacanciesItem item) ->
                     headHunterClient.getVacancy(item.getId())
-                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancy(vacancy))));
+                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
         });
 
         return result;
@@ -66,7 +66,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
             items.forEach((ResponseVacanciesItem item) ->
                     headHunterClient.getVacancy(item.getId())
-                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancy(vacancy))));
+                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
         });
 
         return result;
@@ -75,25 +75,25 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     @Override
     public Optional<Vacancy> findById(String id) {
         return headHunterClient.getVacancy(id)
-                .map(RemoteVacancyRepositoryImpl::extractVacancy);
+                .map(RemoteVacancyRepositoryImpl::extractVacancyFromResponse);
     }
 
-    private static Vacancy extractVacancy(ResponseVacancy response) {
+    private static Vacancy extractVacancyFromResponse(ResponseVacancy response) {
         Vacancy result = new Vacancy();
         result.setIdExternal(response.getId());
         result.setOrigin(Origin.REMOTE);
         result.setDateCreated(response.getCreatedAt());
         result.setTitle(response.getName());
         result.setDescription(response.getDescription());
-        result.setSalary(extractSalary(response));
-        result.setEmployment(extractEmployment(response));
-        result.setEmployer(extractEmployer(response));
-        result.setContacts(extractVacancyContacts(response));
+        result.setSalary(extractSalaryFromResponse(response));
+        result.setEmployment(extractEmploymentFromResponse(response));
+        result.setEmployer(extractEmployerFromResponse(response));
+        result.setContacts(extractContactsFromResponse(response));
 
         return result;
     }
 
-    private static Salary extractSalary(ResponseVacancy response) {
+    private static Salary extractSalaryFromResponse(ResponseVacancy response) {
         ResponseVacancySalary salary = response.getSalary();
         if (salary == null) {
             return null;
@@ -116,7 +116,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         return result;
     }
 
-    private static Employment extractEmployment(ResponseVacancy response) {
+    private static Employment extractEmploymentFromResponse(ResponseVacancy response) {
         ResponseVacancyEmployment employment = response.getEmployment();
         if (employment == null) {
             return null;
@@ -137,7 +137,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         }
     }
 
-    private static Employer extractEmployer(ResponseVacancy response) {
+    private static Employer extractEmployerFromResponse(ResponseVacancy response) {
         ResponseVacancyEmployer employer = response.getEmployer();
         if (employer == null) {
             return null;
@@ -150,7 +150,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         return result;
     }
 
-    private static Set<VacancyContact> extractVacancyContacts(ResponseVacancy response) {
+    private static Set<VacancyContact> extractContactsFromResponse(ResponseVacancy response) {
         ResponseVacancyContact contact = response.getContacts();
         if (contact == null) {
             return null;

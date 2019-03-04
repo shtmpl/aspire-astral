@@ -2,23 +2,23 @@ package aspire.controller.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import java.math.BigDecimal;
+import java.util.List;
 
-public class InputVacancy {
+public class RequestVacancy {
 
     @NotBlank
     private String title;
 
     private String description;
 
-    @PositiveOrZero
-    private BigDecimal salary;
+    private RequestSalary salary;
 
     @NotNull
     private String employment;
 
-    private InputOrganization inputOrganization;
+    private RequestEmployer employer;
+
+    private List<RequestVacancyContact> contacts;
 
     public String getTitle() {
         return title;
@@ -36,11 +36,11 @@ public class InputVacancy {
         this.description = description;
     }
 
-    public BigDecimal getSalary() {
+    public RequestSalary getSalary() {
         return salary;
     }
 
-    public void setSalary(BigDecimal salary) {
+    public void setSalary(RequestSalary salary) {
         this.salary = salary;
     }
 
@@ -52,12 +52,20 @@ public class InputVacancy {
         this.employment = employment;
     }
 
-    public InputOrganization getInputOrganization() {
-        return inputOrganization;
+    public RequestEmployer getEmployer() {
+        return employer;
     }
 
-    public void setInputOrganization(InputOrganization inputOrganization) {
-        this.inputOrganization = inputOrganization;
+    public void setEmployer(RequestEmployer employer) {
+        this.employer = employer;
+    }
+
+    public List<RequestVacancyContact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<RequestVacancyContact> contacts) {
+        this.contacts = contacts;
     }
 
 }

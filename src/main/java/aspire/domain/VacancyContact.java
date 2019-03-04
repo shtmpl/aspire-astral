@@ -10,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 
 @Entity
 @Table(name = "vacancy_contact")
@@ -30,10 +31,6 @@ public class VacancyContact {
 
     @Column
     private String phone;
-
-    @ManyToOne
-    @JoinColumn
-    private Vacancy vacancy;
 
     public Long getId() {
         return id;
@@ -65,14 +62,6 @@ public class VacancyContact {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public Vacancy getVacancy() {
-        return vacancy;
-    }
-
-    public void setVacancy(Vacancy vacancy) {
-        this.vacancy = vacancy;
     }
 
 }
