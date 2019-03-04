@@ -7,11 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class EmployerServiceImplementation implements EmployerService {
+public class EmployerServiceImpl implements EmployerService {
 
     private final LocalEmployerRepository localEmployerRepository;
 
-    public EmployerServiceImplementation(LocalEmployerRepository localEmployerRepository) {
+    public EmployerServiceImpl(LocalEmployerRepository localEmployerRepository) {
         this.localEmployerRepository = localEmployerRepository;
     }
 

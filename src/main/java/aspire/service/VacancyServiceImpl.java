@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class VacancyServiceImplementation implements VacancyService {
+public class VacancyServiceImpl implements VacancyService {
 
     private final LocalVacancyRepository localVacancyRepository;
     private final RemoteVacancyRepository remoteVacancyRepository;
@@ -27,9 +27,9 @@ public class VacancyServiceImplementation implements VacancyService {
     private final EmployerService employerService;
 
     @Autowired
-    public VacancyServiceImplementation(LocalVacancyRepository localVacancyRepository,
-                                        RemoteVacancyRepository remoteVacancyRepository,
-                                        EmployerService employerService) {
+    public VacancyServiceImpl(LocalVacancyRepository localVacancyRepository,
+                              RemoteVacancyRepository remoteVacancyRepository,
+                              EmployerService employerService) {
         this.localVacancyRepository = localVacancyRepository;
         this.remoteVacancyRepository = remoteVacancyRepository;
 

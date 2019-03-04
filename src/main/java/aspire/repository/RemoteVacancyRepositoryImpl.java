@@ -12,6 +12,9 @@ import aspire.integration.response.ResponseVacanciesItem;
 import aspire.integration.response.ResponseVacancy;
 import aspire.integration.response.ResponseVacancyContact;
 import aspire.integration.response.ResponseVacancyContactPhone;
+import aspire.integration.response.ResponseVacancyEmployer;
+import aspire.integration.response.ResponseVacancyEmployment;
+import aspire.integration.response.ResponseVacancySalary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -23,12 +26,12 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepository {
+public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
     private final HeadHunterClient headHunterClient;
 
     @Autowired
-    public RemoteVacancyRepositoryImplementation(HeadHunterClient headHunterClient) {
+    public RemoteVacancyRepositoryImpl(HeadHunterClient headHunterClient) {
         this.headHunterClient = headHunterClient;
     }
 
@@ -36,12 +39,17 @@ public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepos
     public List<Vacancy> findAll() {
         List<Vacancy> result = new LinkedList<>();
 
-        headHunterClient.getVacancies().ifPresent((ResponseVacancies responseVacancies) -> {
-            for (ResponseVacanciesItem item : responseVacancies.getItems()) {
+        headHunterClient.getVacancies().ifPresent((ResponseVacancies vacancies) -> {
+            List<ResponseVacanciesItem> items = vacancies.getItems();
+            if (items == null) {
+                return;
+            }
+
+            for (ResponseVacanciesItem item : items) {
                 String id = item.getId();
 
                 headHunterClient.getVacancy(id)
-                        .ifPresent((ResponseVacancy responseVacancy) -> result.add(extractVacancy(responseVacancy)));
+                        .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancy(vacancy)));
             }
         });
 
@@ -56,7 +64,7 @@ public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepos
     @Override
     public Optional<Vacancy> findById(String id) {
         return headHunterClient.getVacancy(id)
-                .map(RemoteVacancyRepositoryImplementation::extractVacancy);
+                .map(RemoteVacancyRepositoryImpl::extractVacancy);
     }
 
     private static Vacancy extractVacancy(ResponseVacancy response) {
@@ -75,46 +83,40 @@ public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepos
     }
 
     private static Salary extractSalary(ResponseVacancy response) {
-        if (response.getSalary() == null) {
+        ResponseVacancySalary salary = response.getSalary();
+        if (salary == null) {
             return null;
         }
 
-        Salary salary = new Salary();
+        Salary result = new Salary();
 
-        Long salaryFrom = response.getSalary().getFrom();
-        if (salaryFrom != null) {
-            salary.setFrom(BigDecimal.valueOf(salaryFrom));
+        Long from = salary.getFrom();
+        if (from != null) {
+            result.setFrom(BigDecimal.valueOf(from));
         }
 
-        Long salaryTo = response.getSalary().getTo();
-        if (salaryTo != null) {
-            salary.setTo(BigDecimal.valueOf(salaryTo));
+        Long to = salary.getTo();
+        if (to != null) {
+            result.setTo(BigDecimal.valueOf(to));
         }
 
-        salary.setCurrency(response.getSalary().getCurrency());
+        result.setCurrency(salary.getCurrency());
 
-        return salary;
-    }
-
-    private static BigDecimal extractVacancySalaryTo(ResponseVacancy response) {
-        if (response.getSalary() == null) {
-            return null;
-        }
-
-        Long result = response.getSalary().getTo();
-        if (result == null) {
-            return null;
-        }
-
-        return BigDecimal.valueOf(result);
+        return result;
     }
 
     private static Employment extractEmployment(ResponseVacancy response) {
-        if (response.getEmployment() == null || response.getEmployment().getName() == null) {
+        ResponseVacancyEmployment employment = response.getEmployment();
+        if (employment == null) {
             return null;
         }
 
-        switch (response.getEmployment().getId()) {
+        String id = employment.getId();
+        if (id == null) {
+            return null;
+        }
+
+        switch (id) {
             case "full":
                 return Employment.FULL_TIME;
             case "part":
@@ -125,40 +127,41 @@ public class RemoteVacancyRepositoryImplementation implements RemoteVacancyRepos
     }
 
     private static Employer extractEmployer(ResponseVacancy response) {
-        if (response.getEmployer() == null) {
+        ResponseVacancyEmployer employer = response.getEmployer();
+        if (employer == null) {
             return null;
         }
 
         Employer result = new Employer();
-        result.setIdExternal(response.getEmployer().getId());
-        result.setName(response.getEmployer().getName());
+        result.setIdExternal(employer.getId());
+        result.setName(employer.getName());
 
         return result;
     }
 
     private static Set<VacancyContact> extractVacancyContacts(ResponseVacancy response) {
-        ResponseVacancyContact responseContact = response.getContacts();
-        if (responseContact == null) {
+        ResponseVacancyContact contact = response.getContacts();
+        if (contact == null) {
             return null;
         }
 
-        VacancyContact contact = new VacancyContact();
-        contact.setName(responseContact.getName());
-        contact.setEmail(responseContact.getEmail());
+        VacancyContact result = new VacancyContact();
+        result.setName(contact.getName());
+        result.setEmail(contact.getEmail());
 
-        List<ResponseVacancyContactPhone> responsePhones = responseContact.getPhones();
-        if (responsePhones != null && !responsePhones.isEmpty()) {
-            ResponseVacancyContactPhone responsePhone = responsePhones.get(0);
-            String country = responsePhone.getCountry();
-            String city = responsePhone.getCity();
-            String number = responsePhone.getNumber();
+        List<ResponseVacancyContactPhone> phones = contact.getPhones();
+        if (phones != null && !phones.isEmpty()) {
+            ResponseVacancyContactPhone phone = phones.get(0);
+            String country = phone.getCountry();
+            String city = phone.getCity();
+            String number = phone.getNumber();
 
             if (country != null && city != null && number != null) {
-                contact.setPhone(country + city + number);
+                result.setPhone(country + city + number);
             }
         }
 
-        return Collections.singleton(contact);
+        return Collections.singleton(result);
     }
 
 }
