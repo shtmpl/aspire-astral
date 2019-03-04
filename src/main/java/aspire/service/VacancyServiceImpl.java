@@ -10,6 +10,8 @@ import aspire.domain.VacancyNotFoundException;
 import aspire.repository.LocalVacancyRepository;
 import aspire.repository.RemoteVacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,23 +39,23 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public List<Vacancy> findVacancies(String origin) {
+    public List<Vacancy> findVacancies(String origin, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancies();
+                return findLocalVacancies(pageable);
             case Origin.REMOTE:
-                return findRemoteVacancies();
+                return findRemoteVacancies(pageable);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private List<Vacancy> findLocalVacancies() {
-        return localVacancyRepository.findAll();
+    private List<Vacancy> findLocalVacancies(Pageable pageable) {
+        return localVacancyRepository.findAll(pageable).getContent();
     }
 
-    private List<Vacancy> findRemoteVacancies() {
-        return remoteVacancyRepository.findAll();
+    private List<Vacancy> findRemoteVacancies(Pageable pageable) {
+        return remoteVacancyRepository.findAll(pageable);
     }
 
     @Override

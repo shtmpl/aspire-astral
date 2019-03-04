@@ -16,6 +16,7 @@ import aspire.integration.response.ResponseVacancyEmployer;
 import aspire.integration.response.ResponseVacancyEmployment;
 import aspire.integration.response.ResponseVacancySalary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -36,21 +37,18 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     }
 
     @Override
-    public List<Vacancy> findAll() {
+    public List<Vacancy> findAll(Pageable pageable) {
         List<Vacancy> result = new LinkedList<>();
 
-        headHunterClient.getVacancies().ifPresent((ResponseVacancies vacancies) -> {
+        headHunterClient.getVacancies(pageable).ifPresent((ResponseVacancies vacancies) -> {
             List<ResponseVacanciesItem> items = vacancies.getItems();
             if (items == null) {
                 return;
             }
 
-            for (ResponseVacanciesItem item : items) {
-                String id = item.getId();
-
-                headHunterClient.getVacancy(id)
-                        .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancy(vacancy)));
-            }
+            items.forEach((ResponseVacanciesItem item) ->
+                    headHunterClient.getVacancy(item.getId())
+                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancy(vacancy))));
         });
 
         return result;

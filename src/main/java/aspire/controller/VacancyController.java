@@ -6,6 +6,7 @@ import aspire.domain.Origin;
 import aspire.domain.Vacancy;
 import aspire.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,9 @@ public class VacancyController {
 
     private static final String DEFAULT_ORIGIN = Origin.LOCAL;
 
+    private static final String DEFAULT_PAGE = "0";
+    private static final String DEFAULT_SIZE = "10";
+
     private final VacancyService vacancyService;
 
     @Autowired
@@ -36,8 +40,10 @@ public class VacancyController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Vacancy>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        List<Vacancy> result = vacancyService.findVacancies(origin);
+    public ResponseEntity<List<Vacancy>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                               @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                               @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
+        List<Vacancy> result = vacancyService.findVacancies(origin, PageRequest.of(page, size));
 
         return ResponseEntity.ok(result);
     }

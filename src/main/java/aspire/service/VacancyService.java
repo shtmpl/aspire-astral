@@ -2,12 +2,15 @@ package aspire.service;
 
 import aspire.domain.Origin;
 import aspire.domain.Vacancy;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface VacancyService {
 
-    List<Vacancy> findVacancies(String origin);
+//    List<Vacancy> findVacancies(String origin); // FIXME: Should allow to retrieve unpaged?
+
+    List<Vacancy> findVacancies(String origin, Pageable pageable);
 
     List<Vacancy> findVacanciesByTitleContaining(String origin, String title);
 
