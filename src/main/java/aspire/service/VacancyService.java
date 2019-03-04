@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface VacancyService {
 
-//    List<Vacancy> findVacancies(String origin); // FIXME: Should allow to retrieve unpaged?
-
     List<Vacancy> findVacancies(String origin, Pageable pageable);
 
-    List<Vacancy> findVacanciesByTitleContaining(String origin, String title);
+    List<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable);
 
     Vacancy findVacancyById(String origin, String id);
 

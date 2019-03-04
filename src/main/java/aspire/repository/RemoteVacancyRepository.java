@@ -10,7 +10,7 @@ public interface RemoteVacancyRepository {
 
     List<Vacancy> findAll(Pageable pageable);
 
-    List<Vacancy> findAllByTitleContaining(String title);
+    List<Vacancy> findAllByTitleContaining(String title, Pageable pageable);
 
     Optional<Vacancy> findById(String id);
 

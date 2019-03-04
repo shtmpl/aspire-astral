@@ -55,8 +55,21 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     }
 
     @Override
-    public List<Vacancy> findAllByTitleContaining(String title) {
-        return null;
+    public List<Vacancy> findAllByTitleContaining(String title, Pageable pageable) {
+        List<Vacancy> result = new LinkedList<>();
+
+        headHunterClient.getVacancies(title, pageable).ifPresent((ResponseVacancies vacancies) -> {
+            List<ResponseVacanciesItem> items = vacancies.getItems();
+            if (items == null) {
+                return;
+            }
+
+            items.forEach((ResponseVacanciesItem item) ->
+                    headHunterClient.getVacancy(item.getId())
+                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancy(vacancy))));
+        });
+
+        return result;
     }
 
     @Override

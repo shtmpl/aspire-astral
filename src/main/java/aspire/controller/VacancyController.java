@@ -48,11 +48,13 @@ public class VacancyController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/lookup")
+    @GetMapping("/search")
     public ResponseEntity<List<Vacancy>> lookup(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
                                                 @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
-            List<Vacancy> result = vacancyService.findVacanciesByTitleContaining(origin, params.getFirst("title.like"));
+            List<Vacancy> result = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
 
             return ResponseEntity.ok(result);
         }
