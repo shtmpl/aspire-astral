@@ -16,8 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>front</module>
         <module>core</module>
-        <module>front</module>
-        <module>front</module>
     </modules>
 </project>

@@ -4,13 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>astral</artifactId>
         <groupId>aspire</groupId>
+        <artifactId>astral</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>aspire.astral</groupId>
     <artifactId>core</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <name>core</name>
 
     <properties>
@@ -111,17 +112,13 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>src/main/resources/public</outputDirectory>
-                            <overwrite>true</overwrite>
                             <resources>
                                 <resource>
-                                    <directory>${project.parent.basedir}/frontend/target/dist</directory>
-                                    <includes>
-                                        <include>static/</include>
-                                        <include>index.html</include>
-                                    </includes>
+                                    <directory>${project.parent.basedir}/front/target/dist</directory>
                                 </resource>
                             </resources>
+                            <outputDirectory>${project.parent.basedir}/core/target/classes/public</outputDirectory>
+                            <overwrite>true</overwrite>
                         </configuration>
                     </execution>
                 </executions>

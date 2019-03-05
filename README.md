@@ -26,3 +26,6 @@ This solution makes use of an unpleasant technology stack consisting of:
 - Maven
 - Spring (Boot, Web, JPA)
 - Liquibase
+
+$ mvn install -DskipTests
+$ mvn install -Dmaven.test.skip=true
