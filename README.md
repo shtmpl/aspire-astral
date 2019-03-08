@@ -1,31 +1,34 @@
 
+## Issue
 
-## Problem
+This repository presents a program that provides ...
 
-Задание дается в трех вариантах, по возрастанию сложности. Можете
-выбрать любой из них. Основное условие - сделать хорошо работающее
-приложение, желательно без ошибок.
 
-Вариант № 1. Реализовать приложение для формирования списка вакансий с
-поиском по нему. Вакансия характеризуется следующими атрибутами:
-заголовок, оклад, организация разместившая вакансию, контактное лицо,
-телефон, тип занятости, описание вакансии.
+### Running
 
-Вариант № 2. Реализовать приложение забирающее 50 актуальных вакансии с
-сайта https://rabota.yandex.ru/search?job_industry=275 (или любого
-другого аналогичного ресурса) с поиском по загруженным вакансиям.
+`$ java -jar deploy/standalone.jar`
 
-Вариант № 3. Реализовать приложение забирающее 50 актуальных вакансии с
-сайта https://rabota.yandex.ru/search?job_industry=275 (или любого
-другого аналогичного ресурса). Приложение должно сохранять вакансии в
-базе данных Postgres. Приложение должно поддерживать работу как в
-присоединенном к сайту режиме, так и только с сохраненными в БД вакансиями.
+`$ java -jar deploy/standalone.jar --server.port=10000`
 
-## Solution
-This solution makes use of an unpleasant technology stack consisting of:
+
+### Technology
+
+This solution makes use of a technology stack comprised of:
 - Maven
 - Spring (Boot, Web, JPA)
 - Liquibase
+- Vue
+- PostgreSQL
 
-$ mvn install -DskipTests
-$ mvn install -Dmaven.test.skip=true
+
+### Build
+
+`$ mvn clean install -DskipTests`
+
+`$ mvn clean install -Dmaven.test.skip=true`
+
+Alternatively, you could use maven wrapper:
+
+`$ ./mvnw clean install` (for Unix systems)
+
+`$ ./mvnw.cmd clean install` (for Batch)
