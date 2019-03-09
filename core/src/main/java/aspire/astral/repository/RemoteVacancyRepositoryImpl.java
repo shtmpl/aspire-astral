@@ -40,8 +40,6 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
     @Override
     public Page<Vacancy> findAll(Pageable pageable) {
-
-
         return headHunterClient.getVacancies(pageable).map((ResponseVacancies vacancies) -> {
             List<ResponseVacanciesItem> items = vacancies.getItems();
             if (items == null) {
@@ -58,21 +56,20 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     }
 
     @Override
-    public List<Vacancy> findAllByTitleContaining(String title, Pageable pageable) {
-        List<Vacancy> result = new LinkedList<>();
-
-        headHunterClient.getVacancies(title, pageable).ifPresent((ResponseVacancies vacancies) -> {
+    public Page<Vacancy> findAllByTitleContaining(String title, Pageable pageable) {
+        return headHunterClient.getVacancies(title, pageable).map((ResponseVacancies vacancies) -> {
             List<ResponseVacanciesItem> items = vacancies.getItems();
             if (items == null) {
-                return;
+                return Page.<Vacancy>empty(pageable);
             }
 
+            List<Vacancy> result = new LinkedList<>();
             items.forEach((ResponseVacanciesItem item) ->
                     headHunterClient.getVacancy(item.getId())
                             .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
-        });
 
-        return result;
+            return new PageImpl<>(result, pageable, vacancies.getFound());
+        }).orElse(Page.empty(pageable));
     }
 
     @Override

@@ -51,8 +51,8 @@ public class VacancyController {
 
     @GetMapping("")
     public ResponseEntity<ResponseLayoutPaged<List<Vacancy>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                                   @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                   @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
+                                                                    @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                    @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
         Page<Vacancy> result = vacancyService.findVacancies(origin, PageRequest.of(page, size));
 
         ResponseLayoutPaged<List<Vacancy>> response = new ResponseLayoutPaged<>();
@@ -65,17 +65,23 @@ public class VacancyController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Vacancy>> lookup(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                @RequestParam MultiValueMap<String, String> params) {
+    public ResponseEntity<ResponseLayoutPaged<List<Vacancy>>> search(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                     @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                     @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                                     @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
-            List<Vacancy> result = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
+            Page<Vacancy> result = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
 
-            return ResponseEntity.ok(result);
+            ResponseLayoutPaged<List<Vacancy>> response = new ResponseLayoutPaged<>();
+            response.setPage(result.getNumber());
+            response.setSize(result.getSize());
+            response.setTotal(result.getTotalElements());
+            response.setData(result.getContent());
+
+            return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.ok(Collections.emptyList());
+        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/{id}")

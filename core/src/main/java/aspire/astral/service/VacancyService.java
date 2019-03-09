@@ -10,7 +10,7 @@ public interface VacancyService {
 
     Page<Vacancy> findVacancies(String origin, Pageable pageable);
 
-    List<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable);
+    Page<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable);
 
     Vacancy findVacancyById(String origin, String id);
 

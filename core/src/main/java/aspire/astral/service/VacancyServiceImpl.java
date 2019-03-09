@@ -61,7 +61,7 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public List<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable) {
+    public Page<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
                 return findLocalVacanciesByTitleContaining(title, pageable);
@@ -72,11 +72,11 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private List<Vacancy> findLocalVacanciesByTitleContaining(String title, Pageable pageable) {
+    private Page<Vacancy> findLocalVacanciesByTitleContaining(String title, Pageable pageable) {
         return localVacancyRepository.findAllByTitleContaining(title, pageable);
     }
 
-    private List<Vacancy> findRemoteVacanciesByTitleContaining(String title, Pageable pageable) {
+    private Page<Vacancy> findRemoteVacanciesByTitleContaining(String title, Pageable pageable) {
         return remoteVacancyRepository.findAllByTitleContaining(title, pageable);
     }
 
