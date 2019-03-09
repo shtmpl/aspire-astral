@@ -1,5 +1,14 @@
 <template>
   <div>
+    <div v-show="errors.length > 0">
+      <b-alert v-for="(error, idx) in errors"
+               v-bind:key="idx"
+               show
+               dismissible
+               variant="danger">
+        {{ error }}
+      </b-alert>
+    </div>
     <b-input-group>
       <b-input-group-prepend>
         <b-form-radio-group id="radio-origin"
@@ -8,10 +17,10 @@
                             v-model="search.origin"
                             v-bind:options="[{ text: 'Local', value: 'local' }, { text: 'Remote', value: 'remote' }]"/>
       </b-input-group-prepend>
-      <b-form-input placeholder="Title"
+      <b-form-input placeholder="Search by title"
                     v-model="search.title"/>
       <b-input-group-append>
-        <b-button v-on:click="findVacancies"
+        <b-button v-on:click="findVacanciesDebounced"
                   variant="outline-secondary">
           <i class="fas fa-search"></i>
           Search
@@ -32,9 +41,10 @@
     </div>
     <div v-else>
       <b-list-group flush>
-        <b-list-group-item v-for="vacancy in vacancies"
-                           v-bind:key="vacancy.id">
-          <vacancy-overview v-bind="vacancy"></vacancy-overview>
+        <b-list-group-item v-for="(vacancy, idx) in vacancies"
+                           v-bind:key="idx">
+          <vacancy-overview v-bind="vacancy"
+                            v-bind:idx="(paging.page - 1) * paging.size + idx + 1"></vacancy-overview>
         </b-list-group-item>
       </b-list-group>
     </div>
@@ -58,10 +68,12 @@ import BInputGroupPrepend from 'bootstrap-vue/src/components/input-group/input-g
 import apiVacancy from '../api/vacancy'
 
 import VacancyOverview from './VacancyOverview'
+import BAlert from 'bootstrap-vue/src/components/alert/alert'
 
 export default {
   name: 'VacancyIndex',
   components: {
+    BAlert,
     BInputGroupPrepend,
     BButton,
     BInputGroupAppend,
@@ -77,8 +89,9 @@ export default {
   data () {
     return {
       loading: false,
+      errors: [],
       search: {
-        origin: 'local',
+        origin: 'remote',
         title: ''
       },
       paging: {
@@ -100,11 +113,7 @@ export default {
       this.findVacanciesDebounced()
     }
   },
-  computed: {},
   methods: {
-    foo (page) {
-      console.log('Foo ' + page)
-    },
     findVacancies () {
       let origin = this.search.origin
       let title = this.search.title
@@ -113,30 +122,20 @@ export default {
 
       this.loading = true
       if (title) {
-        apiVacancy.searchByTitle(
-          {
-            'title.like': title,
-            origin: origin,
-            page: page,
-            size: size
-          }
-        ).then(response => {
-          this.vacancies = response.data
-
+        apiVacancy.searchByTitle(page, size, origin, title).then(response => {
+          this.paging.total = response.data.total
+          this.vacancies = response.data.vacancies
+        }).catch(error => {
+          this.errors.push(error)
+        }).finally(() => {
           this.loading = false
         })
       } else {
-        apiVacancy.index(
-          {
-            origin: origin,
-            page: page,
-            size: size
-          }
-        ).then(response => {
+        apiVacancy.index(page, size, origin).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.data
+          this.vacancies = response.data.vacancies
         }).catch(error => {
-          console.log('EГГОГ! ' + error)
+          this.errors.push(error)
         }).finally(() => {
           this.loading = false
         })

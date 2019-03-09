@@ -1,11 +1,17 @@
 package aspire.astral.controller.response;
 
-public class ResponseLayoutPaged<Data> {
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class LayoutPage<Data> {
 
     private Integer page;
     private Integer size;
     private Long total;
-    private Data data;
+    private Map<String, Data> fields = new LinkedHashMap<>();
 
     public Integer getPage() {
         return page;
@@ -31,11 +37,13 @@ public class ResponseLayoutPaged<Data> {
         this.total = total;
     }
 
-    public Data getData() {
-        return data;
+    @JsonAnyGetter
+    public Map<String, Data> get() {
+        return fields;
     }
 
-    public void setData(Data data) {
-        this.data = data;
+    @JsonAnySetter
+    public void set(String key, Data data) {
+        this.fields.put(key, data);
     }
 }

@@ -4,7 +4,7 @@ import aspire.astral.controller.request.RequestEmployer;
 import aspire.astral.controller.request.RequestSalary;
 import aspire.astral.controller.request.RequestVacancy;
 import aspire.astral.controller.request.RequestVacancyContact;
-import aspire.astral.controller.response.ResponseLayoutPaged;
+import aspire.astral.controller.response.LayoutPage;
 import aspire.astral.domain.Employer;
 import aspire.astral.domain.Employment;
 import aspire.astral.domain.Origin;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,34 +48,34 @@ public class VacancyController {
         this.vacancyService = vacancyService;
     }
 
-    @GetMapping("")
-    public ResponseEntity<ResponseLayoutPaged<List<Vacancy>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                                    @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                    @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
+    @GetMapping({"", "/index"})
+    public ResponseEntity<LayoutPage<List<Vacancy>>> index(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                           @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                           @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
         Page<Vacancy> result = vacancyService.findVacancies(origin, PageRequest.of(page, size));
 
-        ResponseLayoutPaged<List<Vacancy>> response = new ResponseLayoutPaged<>();
+        LayoutPage<List<Vacancy>> response = new LayoutPage<>();
         response.setPage(result.getNumber());
         response.setSize(result.getSize());
         response.setTotal(result.getTotalElements());
-        response.setData(result.getContent());
+        response.set("vacancies", result.getContent());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ResponseLayoutPaged<List<Vacancy>>> search(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                                     @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                     @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                                     @RequestParam MultiValueMap<String, String> params) {
+    public ResponseEntity<LayoutPage<List<Vacancy>>> search(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                            @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                            @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                            @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
             Page<Vacancy> result = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
 
-            ResponseLayoutPaged<List<Vacancy>> response = new ResponseLayoutPaged<>();
+            LayoutPage<List<Vacancy>> response = new LayoutPage<>();
             response.setPage(result.getNumber());
             response.setSize(result.getSize());
             response.setTotal(result.getTotalElements());
-            response.setData(result.getContent());
+            response.set("vacancies", result.getContent());
 
             return ResponseEntity.ok(response);
         }

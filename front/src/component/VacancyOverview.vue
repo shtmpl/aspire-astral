@@ -17,15 +17,14 @@ export default {
     BRow
   },
   props: {
-    idx: Number,
     id: Number,
     idExternal: String,
     origin: String,
     datePublished: String,
     title: String,
-    description: String,
     salary: Object,
-    employment: String
+    employment: String,
+    idx: Number
   }
 }
 </script>
