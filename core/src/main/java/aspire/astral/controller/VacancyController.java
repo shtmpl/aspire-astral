@@ -4,6 +4,7 @@ import aspire.astral.controller.request.RequestEmployer;
 import aspire.astral.controller.request.RequestSalary;
 import aspire.astral.controller.request.RequestVacancy;
 import aspire.astral.controller.request.RequestVacancyContact;
+import aspire.astral.controller.response.ResponseLayoutPaged;
 import aspire.astral.domain.Employer;
 import aspire.astral.domain.Employment;
 import aspire.astral.domain.Origin;
@@ -12,6 +13,7 @@ import aspire.astral.domain.Vacancy;
 import aspire.astral.domain.VacancyContact;
 import aspire.astral.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -48,12 +50,18 @@ public class VacancyController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Vacancy>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                               @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                               @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
-        List<Vacancy> result = vacancyService.findVacancies(origin, PageRequest.of(page, size));
+    public ResponseEntity<ResponseLayoutPaged<List<Vacancy>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                   @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                   @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
+        Page<Vacancy> result = vacancyService.findVacancies(origin, PageRequest.of(page, size));
 
-        return ResponseEntity.ok(result);
+        ResponseLayoutPaged<List<Vacancy>> response = new ResponseLayoutPaged<>();
+        response.setPage(result.getNumber());
+        response.setSize(result.getSize());
+        response.setTotal(result.getTotalElements());
+        response.setData(result.getContent());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search")

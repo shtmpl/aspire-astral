@@ -11,6 +11,7 @@ import aspire.astral.domain.VacancyNotFoundException;
 import aspire.astral.repository.LocalVacancyRepository;
 import aspire.astral.repository.RemoteVacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public List<Vacancy> findVacancies(String origin, Pageable pageable) {
+    public Page<Vacancy> findVacancies(String origin, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
                 return findLocalVacancies(pageable);
@@ -51,11 +52,11 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private List<Vacancy> findLocalVacancies(Pageable pageable) {
-        return localVacancyRepository.findAll(pageable).getContent();
+    private Page<Vacancy> findLocalVacancies(Pageable pageable) {
+        return localVacancyRepository.findAll(pageable);
     }
 
-    private List<Vacancy> findRemoteVacancies(Pageable pageable) {
+    private Page<Vacancy> findRemoteVacancies(Pageable pageable) {
         return remoteVacancyRepository.findAll(pageable);
     }
 

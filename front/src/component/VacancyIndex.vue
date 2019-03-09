@@ -1,24 +1,31 @@
 <template>
   <div>
     <b-input-group>
+      <b-input-group-prepend>
+        <b-form-radio-group id="radio-origin"
+                            buttons
+                            button-variant="outline-primary"
+                            v-model="search.origin"
+                            v-bind:options="[{ text: 'Local', value: 'local' }, { text: 'Remote', value: 'remote' }]"/>
+      </b-input-group-prepend>
       <b-form-input placeholder="Title"
                     v-model="search.title"/>
+      <b-input-group-append>
+        <b-button v-on:click="findVacancies"
+                  variant="outline-secondary">
+          <i class="fas fa-search"></i>
+          Search
+        </b-button>
+      </b-input-group-append>
     </b-input-group>
-    <b-form-radio-group id="radio-origin"
-                        buttons
-                        button-variant="outline-primary"
-                        v-model="search.origin"
-                        v-bind:options="[{ text: 'Local', value: 'local' }, { text: 'Remote', value: 'remote' }]"/>
     <b-form-radio-group id="radio-size"
                         buttons
                         button-variant="outline-secondary"
-                        v-model="search.size"
+                        v-model="paging.size"
                         v-bind:options="[{ text: '10', value: 10 }, { text: '25', value: 25 }, { text: '50', value: 50 }]"/>
-    <b-pagination hide-goto-end-buttons
-                  limit="4"
-                  v-model="search.page"
-                  v-bind:total-rows="5 * search.size + 1"
-                  v-bind:per-page="search.size"/>
+    <b-pagination v-model="paging.page"
+                  v-bind:per-page="paging.size"
+                  v-bind:total-rows="paging.total"/>
     <div class="overflow-auto"
          v-if="loading">
       <b-spinner/>
@@ -43,15 +50,21 @@ import BPagination from 'bootstrap-vue/src/components/pagination/pagination'
 import BFormRadioGroup from 'bootstrap-vue/src/components/form-radio/form-radio-group'
 import BSpinner from 'bootstrap-vue/src/components/spinner/spinner'
 import BInputGroup from 'bootstrap-vue/src/components/input-group/input-group'
+import BFormInput from 'bootstrap-vue/src/components/form-input/form-input'
+import BInputGroupAppend from 'bootstrap-vue/src/components/input-group/input-group-append'
+import BButton from 'bootstrap-vue/src/components/button/button'
+import BInputGroupPrepend from 'bootstrap-vue/src/components/input-group/input-group-prepend'
 
 import apiVacancy from '../api/vacancy'
 
 import VacancyOverview from './VacancyOverview'
-import BFormInput from 'bootstrap-vue/src/components/form-input/form-input'
 
 export default {
   name: 'VacancyIndex',
   components: {
+    BInputGroupPrepend,
+    BButton,
+    BInputGroupAppend,
     BFormInput,
     BInputGroup,
     BSpinner,
@@ -63,13 +76,16 @@ export default {
   },
   data () {
     return {
+      loading: false,
       search: {
-        page: 1,
-        size: 10,
         origin: 'local',
         title: ''
       },
-      loading: false,
+      paging: {
+        page: 1,
+        size: 10,
+        total: 0
+      },
       vacancies: []
     }
   },
@@ -77,13 +93,11 @@ export default {
     this.findVacanciesDebounced = _.debounce(this.findVacancies, 200)
   },
   watch: {
-    search: {
-      handler: function () {
-        console.log('Search criteria changed')
-
-        this.findVacanciesDebounced()
-      },
-      deep: true
+    'paging.page' () {
+      this.findVacanciesDebounced()
+    },
+    'paging.size' () {
+      this.findVacanciesDebounced()
     }
   },
   computed: {},
@@ -93,9 +107,9 @@ export default {
     },
     findVacancies () {
       let origin = this.search.origin
-      let page = this.search.page - 1
-      let size = this.search.size
       let title = this.search.title
+      let page = this.paging.page - 1
+      let size = this.paging.size
 
       this.loading = true
       if (title) {
@@ -108,6 +122,7 @@ export default {
           }
         ).then(response => {
           this.vacancies = response.data
+
           this.loading = false
         })
       } else {
@@ -118,7 +133,11 @@ export default {
             size: size
           }
         ).then(response => {
-          this.vacancies = response.data
+          this.paging.total = response.data.total
+          this.vacancies = response.data.data
+        }).catch(error => {
+          console.log('EГГОГ! ' + error)
+        }).finally(() => {
           this.loading = false
         })
       }

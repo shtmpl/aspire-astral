@@ -16,6 +16,8 @@ import aspire.astral.integration.response.ResponseVacancyEmployer;
 import aspire.astral.integration.response.ResponseVacancyEmployment;
 import aspire.astral.integration.response.ResponseVacancySalary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -37,21 +39,22 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     }
 
     @Override
-    public List<Vacancy> findAll(Pageable pageable) {
-        List<Vacancy> result = new LinkedList<>();
+    public Page<Vacancy> findAll(Pageable pageable) {
 
-        headHunterClient.getVacancies(pageable).ifPresent((ResponseVacancies vacancies) -> {
+
+        return headHunterClient.getVacancies(pageable).map((ResponseVacancies vacancies) -> {
             List<ResponseVacanciesItem> items = vacancies.getItems();
             if (items == null) {
-                return;
+                return Page.<Vacancy>empty(pageable);
             }
 
+            List<Vacancy> result = new LinkedList<>();
             items.forEach((ResponseVacanciesItem item) ->
                     headHunterClient.getVacancy(item.getId())
                             .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
-        });
 
-        return result;
+            return new PageImpl<>(result, pageable, vacancies.getFound());
+        }).orElse(Page.empty(pageable));
     }
 
     @Override
