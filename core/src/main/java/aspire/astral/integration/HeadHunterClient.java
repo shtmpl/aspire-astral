@@ -3,6 +3,8 @@ package aspire.astral.integration;
 import aspire.astral.config.HeadHunterProperties;
 import aspire.astral.integration.response.ResponseVacancies;
 import aspire.astral.integration.response.ResponseVacancy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -27,6 +30,8 @@ public class HeadHunterClient {
     static final String QUERY_PARAM_SEARCH_VALUE = "text";
 
     static final String PATH_VACANCY_BY_ID = "/vacancies/{id}";
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final HeadHunterProperties headHunterProperties;
 
@@ -48,13 +53,21 @@ public class HeadHunterClient {
                 .queryParam(QUERY_PARAM_PAGE, pageable.getPageNumber())
                 .queryParam(QUERY_PARAM_SIZE, pageable.getPageSize());
 
-        ResponseEntity<ResponseVacancies> response = restTemplate.exchange(
-                builder.toUriString(),
-                HttpMethod.GET,
-                new HttpEntity<>(createHeaders(headHunterProperties)),
-                ResponseVacancies.class);
+        try {
+            ResponseEntity<ResponseVacancies> response = restTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    new HttpEntity<>(createHeaders(headHunterProperties)),
+                    ResponseVacancies.class);
 
-        return Optional.ofNullable(response.getBody());
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound exception) {
+            return Optional.empty();
+        } catch (Exception exception) {
+            logger.error("Error interacting with remote resource", exception);
+
+            throw new IntegrationException(exception);
+        }
     }
 
     public Optional<ResponseVacancies> getVacancies(String title, Pageable pageable) {
@@ -65,24 +78,40 @@ public class HeadHunterClient {
                 .queryParam(QUERY_PARAM_PAGE, pageable.getPageNumber())
                 .queryParam(QUERY_PARAM_SIZE, pageable.getPageSize());
 
-        ResponseEntity<ResponseVacancies> response = restTemplate.exchange(
-                builder.toUriString(),
-                HttpMethod.GET,
-                new HttpEntity<>(createHeaders(headHunterProperties)),
-                ResponseVacancies.class);
+        try {
+            ResponseEntity<ResponseVacancies> response = restTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.GET,
+                    new HttpEntity<>(createHeaders(headHunterProperties)),
+                    ResponseVacancies.class);
 
-        return Optional.ofNullable(response.getBody());
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound exception) {
+            return Optional.empty();
+        } catch (Exception exception) {
+            logger.error("Error interacting with remote resource", exception);
+
+            throw new IntegrationException(exception);
+        }
     }
 
     public Optional<ResponseVacancy> getVacancy(String id) {
-        ResponseEntity<ResponseVacancy> response = restTemplate.exchange(
-                headHunterProperties.getUrl() + PATH_VACANCY_BY_ID,
-                HttpMethod.GET,
-                new HttpEntity<>(createHeaders(headHunterProperties)),
-                ResponseVacancy.class,
-                id);
+        try {
+            ResponseEntity<ResponseVacancy> response = restTemplate.exchange(
+                    headHunterProperties.getUrl() + PATH_VACANCY_BY_ID,
+                    HttpMethod.GET,
+                    new HttpEntity<>(createHeaders(headHunterProperties)),
+                    ResponseVacancy.class,
+                    id);
 
-        return Optional.ofNullable(response.getBody());
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound exception) {
+            return Optional.empty();
+        } catch (Exception exception) {
+            logger.error("Error interacting with remote resource", exception);
+
+            throw new IntegrationException(exception);
+        }
     }
 
     private static HttpHeaders createHeaders(HeadHunterProperties properties) {
