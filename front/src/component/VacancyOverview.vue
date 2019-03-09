@@ -24,8 +24,7 @@ export default {
       origin: String,
       datePublished: String,
       title: String,
-      salary: Object,
-      employment: String
+      salary: Object
     }
   }
 }

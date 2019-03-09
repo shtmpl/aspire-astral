@@ -13,8 +13,8 @@ public class ResponseVacancy {
     private Date createdAt;
     @JsonProperty("published_at")
     private Date publishedAt;
-    private ResponseVacancySalary salary;
-    private ResponseVacancyEmployment employment;
+    private ResponseSalary salary;
+    private ResponseEmployment employment;
     private ResponseVacancyEmployer employer;
     private ResponseVacancyContact contacts;
 
@@ -58,19 +58,19 @@ public class ResponseVacancy {
         this.publishedAt = publishedAt;
     }
 
-    public ResponseVacancySalary getSalary() {
+    public ResponseSalary getSalary() {
         return salary;
     }
 
-    public void setSalary(ResponseVacancySalary salary) {
+    public void setSalary(ResponseSalary salary) {
         this.salary = salary;
     }
 
-    public ResponseVacancyEmployment getEmployment() {
+    public ResponseEmployment getEmployment() {
         return employment;
     }
 
-    public void setEmployment(ResponseVacancyEmployment employment) {
+    public void setEmployment(ResponseEmployment employment) {
         this.employment = employment;
     }
 

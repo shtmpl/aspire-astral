@@ -11,6 +11,7 @@ import aspire.astral.domain.Origin;
 import aspire.astral.domain.Salary;
 import aspire.astral.domain.Vacancy;
 import aspire.astral.domain.VacancyContact;
+import aspire.astral.domain.VacancyOverview;
 import aspire.astral.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -49,23 +50,24 @@ public class VacancyController {
     }
 
     @GetMapping({"", "/index"})
-    public ResponseEntity<LayoutPage<List<Vacancy>>> index(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                           @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                           @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Page<Vacancy> vacancies = vacancyService.findVacancies(origin, PageRequest.of(page, size));
+    public ResponseEntity<LayoutPage<List<VacancyOverview>>> idx(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                 @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                                 @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(origin, PageRequest.of(page, size));
 
-        return ResponseEntity.ok(extractResponseFromVacancies(vacancies));
+        return ResponseEntity.ok(extractResponseFromPage(overviews));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<LayoutPage<List<Vacancy>>> search(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                            @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                            @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                            @RequestParam MultiValueMap<String, String> params) {
-        if (params.containsKey("title.like")) {
-            Page<Vacancy> vacancies = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
 
-            return ResponseEntity.ok(extractResponseFromVacancies(vacancies));
+    @GetMapping("/search")
+    public ResponseEntity<LayoutPage<List<VacancyOverview>>> search(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                    @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                                    @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                    @RequestParam MultiValueMap<String, String> params) {
+        if (params.containsKey("title.like")) {
+            Page<VacancyOverview> overviews = vacancyService.findVacancyOverviewsByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
+
+            return ResponseEntity.ok(extractResponseFromPage(overviews));
         }
 
         return ResponseEntity.badRequest().build();
@@ -104,12 +106,12 @@ public class VacancyController {
         return ResponseEntity.ok(result);
     }
 
-    private static LayoutPage<List<Vacancy>> extractResponseFromVacancies(Page<Vacancy> vacancies) {
-        LayoutPage<List<Vacancy>> result = new LayoutPage<>();
-        result.setPage(vacancies.getNumber());
-        result.setSize(vacancies.getSize());
-        result.setTotal(vacancies.getTotalElements());
-        result.set("vacancies", vacancies.getContent());
+    private static <X> LayoutPage<List<X>> extractResponseFromPage(Page<X> page) {
+        LayoutPage<List<X>> result = new LayoutPage<>();
+        result.setPage(page.getNumber());
+        result.setSize(page.getSize());
+        result.setTotal(page.getTotalElements());
+        result.set("slice", page.getContent());
 
         return result;
     }

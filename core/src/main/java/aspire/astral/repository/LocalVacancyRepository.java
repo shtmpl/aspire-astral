@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LocalVacancyRepository extends JpaRepository<Vacancy, Long> {
 
-    Page<Vacancy> findAllByTitleContaining(String title, Pageable pageable);
+    <X> Page<X> findAllBy(Class<X> projection, Pageable pageable);
+
+    <X> Page<X> findAllByTitleContaining(Class<X> projection, String title, Pageable pageable);
 }

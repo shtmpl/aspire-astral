@@ -1,14 +1,15 @@
 package aspire.astral.service;
 
 import aspire.astral.domain.Vacancy;
+import aspire.astral.domain.VacancyOverview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface VacancyService {
 
-    Page<Vacancy> findVacancies(String origin, Pageable pageable);
+    Page<VacancyOverview> findVacancyOverviews(String origin, Pageable pageable);
 
-    Page<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable);
+    Page<VacancyOverview> findVacancyOverviewsByTitleLike(String origin, String title, Pageable pageable);
 
     Vacancy findVacancyById(String origin, String id);
 

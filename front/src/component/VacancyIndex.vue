@@ -127,7 +127,7 @@ export default {
       if (title) {
         apiVacancy.searchByTitle(page, size, origin, title).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.vacancies
+          this.vacancies = response.data.slice
         }).catch(error => {
           this.errors.push(error)
         }).finally(() => {
@@ -136,7 +136,7 @@ export default {
       } else {
         apiVacancy.index(page, size, origin).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.vacancies
+          this.vacancies = response.data.slice
         }).catch(error => {
           this.errors.push(error)
         }).finally(() => {

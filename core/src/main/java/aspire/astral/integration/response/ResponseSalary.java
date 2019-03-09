@@ -1,6 +1,6 @@
 package aspire.astral.integration.response;
 
-public class ResponseVacancySalary {
+public class ResponseSalary {
 
     private Long from;
     private Long to;

@@ -6,6 +6,7 @@ import aspire.astral.domain.Origin;
 import aspire.astral.domain.Salary;
 import aspire.astral.domain.Vacancy;
 import aspire.astral.domain.VacancyContact;
+import aspire.astral.domain.VacancyOverview;
 import aspire.astral.integration.HeadHunterClient;
 import aspire.astral.integration.response.ResponseVacancies;
 import aspire.astral.integration.response.ResponseVacanciesItem;
@@ -13,8 +14,8 @@ import aspire.astral.integration.response.ResponseVacancy;
 import aspire.astral.integration.response.ResponseVacancyContact;
 import aspire.astral.integration.response.ResponseVacancyContactPhone;
 import aspire.astral.integration.response.ResponseVacancyEmployer;
-import aspire.astral.integration.response.ResponseVacancyEmployment;
-import aspire.astral.integration.response.ResponseVacancySalary;
+import aspire.astral.integration.response.ResponseEmployment;
+import aspire.astral.integration.response.ResponseSalary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -39,31 +41,41 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     }
 
     @Override
-    public Page<Vacancy> findAll(Pageable pageable) {
+    public Page<VacancyOverview> findAllBy(Class<VacancyOverview> projection, Pageable pageable) {
         return headHunterClient.getVacancies(pageable)
-                .map((ResponseVacancies it) -> extractVacanciesFromResponse(it, pageable))
+                .map((ResponseVacancies it) -> extractVacancyOverviewsFromResponse(it, pageable))
                 .orElse(Page.empty(pageable));
     }
 
     @Override
-    public Page<Vacancy> findAllByTitleContaining(String title, Pageable pageable) {
+    public Page<VacancyOverview> findAllByTitleContaining(Class<VacancyOverview> projection, String title, Pageable pageable) {
         return headHunterClient.getVacancies(title, pageable)
-                .map((ResponseVacancies it) -> extractVacanciesFromResponse(it, pageable))
+                .map((ResponseVacancies it) -> extractVacancyOverviewsFromResponse(it, pageable))
                 .orElse(Page.empty(pageable));
     }
 
-    private Page<Vacancy> extractVacanciesFromResponse(ResponseVacancies response, Pageable pageable) {
+    private static Page<VacancyOverview> extractVacancyOverviewsFromResponse(ResponseVacancies response, Pageable pageable) {
         List<ResponseVacanciesItem> items = response.getItems();
         if (items == null) {
             return Page.empty(pageable);
         }
 
-        List<Vacancy> result = new LinkedList<>();
-        items.forEach((ResponseVacanciesItem it) ->
-                headHunterClient.getVacancy(it.getId())
-                        .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
+        List<VacancyOverview> result = new LinkedList<>();
+        items.forEach((ResponseVacanciesItem it) -> result.add(extractVacancyOverviewFromResponse(it)));
 
         return new PageImpl<>(result, pageable, response.getFound());
+    }
+
+    private static VacancyOverview extractVacancyOverviewFromResponse(ResponseVacanciesItem response) {
+        RemoteVacancyOverview result = new RemoteVacancyOverview();
+        result.setId(null);
+        result.setIdExternal(response.getId());
+        result.setOrigin(Origin.REMOTE);
+        result.setDatePublished(response.getDatePublished());
+        result.setTitle(response.getName());
+        result.setSalary(extractSalaryFromResponse(response.getSalary()));
+
+        return result;
     }
 
     @Override
@@ -79,44 +91,42 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         result.setDateCreated(response.getCreatedAt());
         result.setTitle(response.getName());
         result.setDescription(response.getDescription());
-        result.setSalary(extractSalaryFromResponse(response));
-        result.setEmployment(extractEmploymentFromResponse(response));
+        result.setSalary(extractSalaryFromResponse(response.getSalary()));
+        result.setEmployment(extractEmploymentFromResponse(response.getEmployment()));
         result.setEmployer(extractEmployerFromResponse(response));
         result.setContacts(extractContactsFromResponse(response));
 
         return result;
     }
 
-    private static Salary extractSalaryFromResponse(ResponseVacancy response) {
-        ResponseVacancySalary salary = response.getSalary();
-        if (salary == null) {
+    private static Salary extractSalaryFromResponse(ResponseSalary response) {
+        if (response == null) {
             return null;
         }
 
         Salary result = new Salary();
 
-        Long from = salary.getFrom();
+        Long from = response.getFrom();
         if (from != null) {
             result.setFrom(BigDecimal.valueOf(from));
         }
 
-        Long to = salary.getTo();
+        Long to = response.getTo();
         if (to != null) {
             result.setTo(BigDecimal.valueOf(to));
         }
 
-        result.setCurrency(salary.getCurrency());
+        result.setCurrency(response.getCurrency());
 
         return result;
     }
 
-    private static Employment extractEmploymentFromResponse(ResponseVacancy response) {
-        ResponseVacancyEmployment employment = response.getEmployment();
-        if (employment == null) {
+    private static Employment extractEmploymentFromResponse(ResponseEmployment response) {
+        if (response == null) {
             return null;
         }
 
-        String id = employment.getId();
+        String id = response.getId();
         if (id == null) {
             return null;
         }
@@ -167,5 +177,69 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         }
 
         return Collections.singleton(result);
+    }
+
+    private static class RemoteVacancyOverview implements VacancyOverview {
+
+        private Long id;
+        private String idExternal;
+        private String origin;
+        private Date datePublished;
+        private String title;
+        private Salary salary;
+
+        @Override
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getIdExternal() {
+            return idExternal;
+        }
+
+        public void setIdExternal(String idExternal) {
+            this.idExternal = idExternal;
+        }
+
+        @Override
+        public String getOrigin() {
+            return origin;
+        }
+
+        public void setOrigin(String origin) {
+            this.origin = origin;
+        }
+
+        @Override
+        public Date getDatePublished() {
+            return datePublished;
+        }
+
+        public void setDatePublished(Date datePublished) {
+            this.datePublished = datePublished;
+        }
+
+        @Override
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        @Override
+        public Salary getSalary() {
+            return salary;
+        }
+
+        public void setSalary(Salary salary) {
+            this.salary = salary;
+        }
     }
 }

@@ -8,6 +8,7 @@ import aspire.astral.domain.OriginUnsupportedOperationException;
 import aspire.astral.domain.Vacancy;
 import aspire.astral.domain.VacancyContact;
 import aspire.astral.domain.VacancyNotFoundException;
+import aspire.astral.domain.VacancyOverview;
 import aspire.astral.repository.LocalVacancyRepository;
 import aspire.astral.repository.RemoteVacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,43 +41,43 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public Page<Vacancy> findVacancies(String origin, Pageable pageable) {
+    public Page<VacancyOverview> findVacancyOverviews(String origin, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancies(pageable);
+                return findLocalVacancyOverviews(pageable);
             case Origin.REMOTE:
-                return findRemoteVacancies(pageable);
+                return findRemoteVacancyOverviews(pageable);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private Page<Vacancy> findLocalVacancies(Pageable pageable) {
-        return localVacancyRepository.findAll(pageable);
+    private Page<VacancyOverview> findLocalVacancyOverviews(Pageable pageable) {
+        return localVacancyRepository.findAllBy(VacancyOverview.class, pageable);
     }
 
-    private Page<Vacancy> findRemoteVacancies(Pageable pageable) {
-        return remoteVacancyRepository.findAll(pageable);
+    private Page<VacancyOverview> findRemoteVacancyOverviews(Pageable pageable) {
+        return remoteVacancyRepository.findAllBy(VacancyOverview.class, pageable);
     }
 
     @Override
-    public Page<Vacancy> findVacanciesByTitleLike(String origin, String title, Pageable pageable) {
+    public Page<VacancyOverview> findVacancyOverviewsByTitleLike(String origin, String title, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacanciesByTitleContaining(title, pageable);
+                return findLocalVacancyOverviewsByTitleLike(title, pageable);
             case Origin.REMOTE:
-                return findRemoteVacanciesByTitleContaining(title, pageable);
+                return findRemoteVacancyOverviewsByTitleLike(title, pageable);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private Page<Vacancy> findLocalVacanciesByTitleContaining(String title, Pageable pageable) {
-        return localVacancyRepository.findAllByTitleContaining(title, pageable);
+    private Page<VacancyOverview> findLocalVacancyOverviewsByTitleLike(String title, Pageable pageable) {
+        return localVacancyRepository.findAllByTitleContaining(VacancyOverview.class, title, pageable);
     }
 
-    private Page<Vacancy> findRemoteVacanciesByTitleContaining(String title, Pageable pageable) {
-        return remoteVacancyRepository.findAllByTitleContaining(title, pageable);
+    private Page<VacancyOverview> findRemoteVacancyOverviewsByTitleLike(String title, Pageable pageable) {
+        return remoteVacancyRepository.findAllByTitleContaining(VacancyOverview.class, title, pageable);
     }
 
     @Override
@@ -112,7 +113,7 @@ public class VacancyServiceImpl implements VacancyService {
                 return createLocalVacancy(vacancy);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
-                        String.format("Operation: %s not supported for origin: %s", "create", origin));
+                        String.format("Operation: %s is not supported for origin: %s", "create", origin));
             default:
                 throw new OriginUndefinedException();
         }
@@ -161,7 +162,7 @@ public class VacancyServiceImpl implements VacancyService {
                 return updateLocalVacancy(id, vacancy);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
-                        String.format("Operation: %s not supported for origin: %s", "update", origin));
+                        String.format("Operation: %s is not supported for origin: %s", "update", origin));
             default:
                 throw new OriginUndefinedException();
         }
@@ -214,7 +215,7 @@ public class VacancyServiceImpl implements VacancyService {
                 return deleteLocalVacancy(id);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
-                        String.format("Operation: %s not supported for origin: %s", "delete", origin));
+                        String.format("Operation: %s is not supported for origin: %s", "delete", origin));
             default:
                 throw new OriginUndefinedException();
         }

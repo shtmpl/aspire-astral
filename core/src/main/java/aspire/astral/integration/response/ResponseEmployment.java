@@ -1,6 +1,6 @@
 package aspire.astral.integration.response;
 
-public class ResponseVacancyEmployment {
+public class ResponseEmployment {
 
     private String id;
     private String name;
