@@ -4,7 +4,7 @@
     <p><em>Created: {{ dateCreated }}</em></p>
     <p><em>Published: {{ datePublished }}</em></p>
     <h3>{{ formatSalary }}</h3>
-    <p>{{ description }}</p>
+    <p v-html="description"></p>
   </div>
 </template>
 
@@ -15,8 +15,8 @@ export default {
     id: Number,
     idExternal: String,
     origin: String,
-    dateCreated: Date,
-    datePublished: Date,
+    dateCreated: String,
+    datePublished: String,
     title: String,
     description: String,
     salary: Object,
@@ -26,7 +26,17 @@ export default {
   },
   computed: {
     formatSalary: function () {
-      return this.salary.from + '..' + this.salary.to + ' ' + this.salary.currency
+      if (this.salary === null) {
+        return 'ХЗ'
+      } else {
+        let result = ''
+        if (this.salary.from !== null) {
+          result += 'От ' + this.salary.from
+        } else if (this.salary.to !== null) {
+          result += 'До ' + this.salary.to
+        }
+        return result + ' ' + this.salary.currency
+      }
     }
   }
 }
