@@ -1,7 +1,7 @@
 <template>
   <b-row>
     <b-col>
-      {{ idx }} {{ title }}
+      {{ idx }} {{ overview.title }}
     </b-col>
   </b-row>
 </template>
@@ -17,14 +17,16 @@ export default {
     BRow
   },
   props: {
-    id: Number,
-    idExternal: String,
-    origin: String,
-    datePublished: String,
-    title: String,
-    salary: Object,
-    employment: String,
-    idx: Number
+    idx: Number,
+    overview: {
+      id: Number,
+      idExternal: String,
+      origin: String,
+      datePublished: String,
+      title: String,
+      salary: Object,
+      employment: String
+    }
   }
 }
 </script>

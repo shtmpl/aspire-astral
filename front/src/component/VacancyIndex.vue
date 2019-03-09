@@ -43,8 +43,8 @@
       <b-list-group flush>
         <b-list-group-item v-for="(vacancy, idx) in vacancies"
                            v-bind:key="idx">
-          <vacancy-overview v-bind="vacancy"
-                            v-bind:idx="(paging.page - 1) * paging.size + idx + 1"></vacancy-overview>
+          <vacancy-overview v-bind:idx="idxVacancy(idx)"
+                            v-bind:overview="vacancy"></vacancy-overview>
         </b-list-group-item>
       </b-list-group>
     </div>
@@ -54,6 +54,7 @@
 <script>
 import _ from 'lodash'
 
+import BAlert from 'bootstrap-vue/src/components/alert/alert'
 import BListGroup from 'bootstrap-vue/src/components/list-group/list-group'
 import BListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item'
 import BPagination from 'bootstrap-vue/src/components/pagination/pagination'
@@ -68,7 +69,6 @@ import BInputGroupPrepend from 'bootstrap-vue/src/components/input-group/input-g
 import apiVacancy from '../api/vacancy'
 
 import VacancyOverview from './VacancyOverview'
-import BAlert from 'bootstrap-vue/src/components/alert/alert'
 
 export default {
   name: 'VacancyIndex',
@@ -91,7 +91,7 @@ export default {
       loading: false,
       errors: [],
       search: {
-        origin: 'remote',
+        origin: 'local',
         title: ''
       },
       paging: {
@@ -114,6 +114,9 @@ export default {
     }
   },
   methods: {
+    idxVacancy (idx) {
+      return (this.paging.page - 1) * this.paging.size + idx + 1
+    },
     findVacancies () {
       let origin = this.search.origin
       let title = this.search.title

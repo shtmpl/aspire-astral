@@ -52,15 +52,9 @@ public class VacancyController {
     public ResponseEntity<LayoutPage<List<Vacancy>>> index(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
                                                            @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
                                                            @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Page<Vacancy> result = vacancyService.findVacancies(origin, PageRequest.of(page, size));
+        Page<Vacancy> vacancies = vacancyService.findVacancies(origin, PageRequest.of(page, size));
 
-        LayoutPage<List<Vacancy>> response = new LayoutPage<>();
-        response.setPage(result.getNumber());
-        response.setSize(result.getSize());
-        response.setTotal(result.getTotalElements());
-        response.set("vacancies", result.getContent());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(extractResponseFromVacancies(vacancies));
     }
 
     @GetMapping("/search")
@@ -69,15 +63,9 @@ public class VacancyController {
                                                             @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                                             @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
-            Page<Vacancy> result = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
+            Page<Vacancy> vacancies = vacancyService.findVacanciesByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
 
-            LayoutPage<List<Vacancy>> response = new LayoutPage<>();
-            response.setPage(result.getNumber());
-            response.setSize(result.getSize());
-            response.setTotal(result.getTotalElements());
-            response.set("vacancies", result.getContent());
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(extractResponseFromVacancies(vacancies));
         }
 
         return ResponseEntity.badRequest().build();
@@ -114,6 +102,16 @@ public class VacancyController {
         Vacancy result = vacancyService.deleteVacancy(origin, id);
 
         return ResponseEntity.ok(result);
+    }
+
+    private static LayoutPage<List<Vacancy>> extractResponseFromVacancies(Page<Vacancy> vacancies) {
+        LayoutPage<List<Vacancy>> result = new LayoutPage<>();
+        result.setPage(vacancies.getNumber());
+        result.setSize(vacancies.getSize());
+        result.setTotal(vacancies.getTotalElements());
+        result.set("vacancies", vacancies.getContent());
+
+        return result;
     }
 
     private static Vacancy extractVacancyFromRequest(RequestVacancy request) {

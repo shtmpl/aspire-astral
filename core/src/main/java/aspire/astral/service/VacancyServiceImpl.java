@@ -1,11 +1,11 @@
 package aspire.astral.service;
 
+import aspire.astral.domain.Employer;
 import aspire.astral.domain.Employment;
 import aspire.astral.domain.Origin;
 import aspire.astral.domain.OriginUndefinedException;
 import aspire.astral.domain.OriginUnsupportedOperationException;
 import aspire.astral.domain.Vacancy;
-import aspire.astral.domain.Employer;
 import aspire.astral.domain.VacancyContact;
 import aspire.astral.domain.VacancyNotFoundException;
 import aspire.astral.repository.LocalVacancyRepository;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 
 @Service

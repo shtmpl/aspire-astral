@@ -48,39 +48,31 @@ public class HeadHunterClient {
     }
 
     public Optional<ResponseVacancies> getVacancies(Pageable pageable) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(headHunterProperties.getUrl())
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(headHunterProperties.getUrl())
                 .path(PATH_VACANCIES)
                 .queryParam(QUERY_PARAM_PAGE, pageable.getPageNumber())
                 .queryParam(QUERY_PARAM_SIZE, pageable.getPageSize());
 
-        try {
-            ResponseEntity<ResponseVacancies> response = restTemplate.exchange(
-                    builder.toUriString(),
-                    HttpMethod.GET,
-                    new HttpEntity<>(createHeaders(headHunterProperties)),
-                    ResponseVacancies.class);
-
-            return Optional.ofNullable(response.getBody());
-        } catch (HttpClientErrorException.NotFound exception) {
-            return Optional.empty();
-        } catch (Exception exception) {
-            logger.error("Error interacting with remote resource", exception);
-
-            throw new IntegrationException(exception);
-        }
+        return requestVacancies(builder.toUriString());
     }
 
     public Optional<ResponseVacancies> getVacancies(String title, Pageable pageable) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(headHunterProperties.getUrl())
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(headHunterProperties.getUrl())
                 .path(PATH_VACANCIES)
                 .queryParam(QUERY_PARAM_SEARCH_FIELD, "name")
                 .queryParam(QUERY_PARAM_SEARCH_VALUE, title)
                 .queryParam(QUERY_PARAM_PAGE, pageable.getPageNumber())
                 .queryParam(QUERY_PARAM_SIZE, pageable.getPageSize());
 
+        return requestVacancies(builder.toUriString());
+    }
+
+    private Optional<ResponseVacancies> requestVacancies(String url) {
         try {
             ResponseEntity<ResponseVacancies> response = restTemplate.exchange(
-                    builder.toUriString(),
+                    url,
                     HttpMethod.GET,
                     new HttpEntity<>(createHeaders(headHunterProperties)),
                     ResponseVacancies.class);
@@ -96,13 +88,20 @@ public class HeadHunterClient {
     }
 
     public Optional<ResponseVacancy> getVacancy(String id) {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(headHunterProperties.getUrl())
+                .path(PATH_VACANCY_BY_ID);
+
+        return requestVacancy(builder.buildAndExpand(id).toUriString());
+    }
+
+    private Optional<ResponseVacancy> requestVacancy(String url) {
         try {
             ResponseEntity<ResponseVacancy> response = restTemplate.exchange(
-                    headHunterProperties.getUrl() + PATH_VACANCY_BY_ID,
+                    url,
                     HttpMethod.GET,
                     new HttpEntity<>(createHeaders(headHunterProperties)),
-                    ResponseVacancy.class,
-                    id);
+                    ResponseVacancy.class);
 
             return Optional.ofNullable(response.getBody());
         } catch (HttpClientErrorException.NotFound exception) {

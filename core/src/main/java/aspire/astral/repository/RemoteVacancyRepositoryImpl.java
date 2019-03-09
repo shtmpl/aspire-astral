@@ -40,36 +40,30 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
     @Override
     public Page<Vacancy> findAll(Pageable pageable) {
-        return headHunterClient.getVacancies(pageable).map((ResponseVacancies vacancies) -> {
-            List<ResponseVacanciesItem> items = vacancies.getItems();
-            if (items == null) {
-                return Page.<Vacancy>empty(pageable);
-            }
-
-            List<Vacancy> result = new LinkedList<>();
-            items.forEach((ResponseVacanciesItem item) ->
-                    headHunterClient.getVacancy(item.getId())
-                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
-
-            return new PageImpl<>(result, pageable, vacancies.getFound());
-        }).orElse(Page.empty(pageable));
+        return headHunterClient.getVacancies(pageable)
+                .map((ResponseVacancies it) -> extractVacanciesFromResponse(it, pageable))
+                .orElse(Page.empty(pageable));
     }
 
     @Override
     public Page<Vacancy> findAllByTitleContaining(String title, Pageable pageable) {
-        return headHunterClient.getVacancies(title, pageable).map((ResponseVacancies vacancies) -> {
-            List<ResponseVacanciesItem> items = vacancies.getItems();
-            if (items == null) {
-                return Page.<Vacancy>empty(pageable);
-            }
+        return headHunterClient.getVacancies(title, pageable)
+                .map((ResponseVacancies it) -> extractVacanciesFromResponse(it, pageable))
+                .orElse(Page.empty(pageable));
+    }
 
-            List<Vacancy> result = new LinkedList<>();
-            items.forEach((ResponseVacanciesItem item) ->
-                    headHunterClient.getVacancy(item.getId())
-                            .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
+    private Page<Vacancy> extractVacanciesFromResponse(ResponseVacancies response, Pageable pageable) {
+        List<ResponseVacanciesItem> items = response.getItems();
+        if (items == null) {
+            return Page.empty(pageable);
+        }
 
-            return new PageImpl<>(result, pageable, vacancies.getFound());
-        }).orElse(Page.empty(pageable));
+        List<Vacancy> result = new LinkedList<>();
+        items.forEach((ResponseVacanciesItem it) ->
+                headHunterClient.getVacancy(it.getId())
+                        .ifPresent((ResponseVacancy vacancy) -> result.add(extractVacancyFromResponse(vacancy))));
+
+        return new PageImpl<>(result, pageable, response.getFound());
     }
 
     @Override
