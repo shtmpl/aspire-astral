@@ -48,7 +48,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     }
 
     @Override
-    public Page<VacancyOverview> findAllByTitleContaining(Class<VacancyOverview> projection, String title, Pageable pageable) {
+    public Page<VacancyOverview> findAllByTitleContainingIgnoreCase(Class<VacancyOverview> projection, String title, Pageable pageable) {
         return headHunterClient.getVacancies(title, pageable)
                 .map((ResponseVacancies it) -> extractVacancyOverviewsFromResponse(it, pageable))
                 .orElse(Page.empty(pageable));

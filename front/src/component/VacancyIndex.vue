@@ -1,11 +1,12 @@
 <template>
   <div>
     <div v-show="errors.length > 0">
-      <b-alert v-for="(error, idx) in errors"
-               v-bind:key="idx"
-               show
+      <b-alert show
                dismissible
-               variant="danger">
+               variant="danger"
+               v-for="(error, idx) in errors"
+               v-bind:key="idx"
+               v-on:dismissed="errors.splice(idx, 1)">
         {{ error }}
       </b-alert>
     </div>
@@ -22,7 +23,8 @@
       <b-input-group-append>
         <b-button v-on:click="findVacanciesDebounced"
                   variant="outline-secondary">
-          <i class="fas fa-search"></i>
+          <span v-if="loading"><b-spinner small/></span>
+          <span v-else><i class="fas fa-search"></i></span>
           Search
         </b-button>
       </b-input-group-append>
@@ -43,8 +45,12 @@
       <b-list-group flush>
         <b-list-group-item v-for="(vacancy, idx) in vacancies"
                            v-bind:key="idx">
-          <vacancy-overview v-bind:idx="idxVacancy(idx)"
-                            v-bind:overview="vacancy"></vacancy-overview>
+          {{ idxVacancy(idx) }} {{ vacancy.title }}
+          <b-button v-bind:variant="isImportedVacancy(vacancy) ? 'secondary' : 'outline-success'"
+                    v-on:click="importVacancy(idx, vacancy)">
+            <i class="fas fa-download"></i>
+            Import
+          </b-button>
         </b-list-group-item>
       </b-list-group>
     </div>
@@ -66,9 +72,7 @@ import BInputGroupAppend from 'bootstrap-vue/src/components/input-group/input-gr
 import BButton from 'bootstrap-vue/src/components/button/button'
 import BInputGroupPrepend from 'bootstrap-vue/src/components/input-group/input-group-prepend'
 
-import apiVacancy from '../api/vacancy'
-
-import VacancyOverview from './VacancyOverview'
+import ApiVacancy from '../api/vacancy'
 
 export default {
   name: 'VacancyIndex',
@@ -83,8 +87,7 @@ export default {
     BFormRadioGroup,
     BListGroup,
     BListGroupItem,
-    BPagination,
-    VacancyOverview
+    BPagination
   },
   data () {
     return {
@@ -125,7 +128,7 @@ export default {
 
       this.loading = true
       if (title) {
-        apiVacancy.searchByTitle(page, size, origin, title).then(response => {
+        ApiVacancy.searchByTitle(page, size, origin, title).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -134,7 +137,7 @@ export default {
           this.loading = false
         })
       } else {
-        apiVacancy.index(page, size, origin).then(response => {
+        ApiVacancy.index(page, size, origin).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -143,6 +146,16 @@ export default {
           this.loading = false
         })
       }
+    },
+    importVacancy (idx, vacancy) {
+      ApiVacancy.importVacancy(vacancy).then(response => {
+        this.vacancies.splice(idx, 1, response.data)
+      }).catch(error => {
+        this.errors.push(error)
+      })
+    },
+    isImportedVacancy (vacancy) {
+      return vacancy.id !== null
     }
   }
 }

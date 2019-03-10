@@ -24,7 +24,7 @@ import java.util.Set;
 @Entity
 @Table(name = "vacancy",
         indexes = {
-                @Index(name = "vacancy_id_external_key", columnList = "idExternal", unique = true)
+                @Index(name = "vacancy_id_external_origin_key", columnList = "idExternal, origin", unique = true)
         })
 @SequenceGenerator(name = "vacancy_id_seq")
 public class Vacancy {

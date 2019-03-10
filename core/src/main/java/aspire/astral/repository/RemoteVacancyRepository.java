@@ -11,7 +11,7 @@ public interface RemoteVacancyRepository {
 
     Page<VacancyOverview> findAllBy(Class<VacancyOverview> projection, Pageable pageable);
 
-    Page<VacancyOverview> findAllByTitleContaining(Class<VacancyOverview> projection, String title, Pageable pageable);
+    Page<VacancyOverview> findAllByTitleContainingIgnoreCase(Class<VacancyOverview> projection, String title, Pageable pageable);
 
     Optional<Vacancy> findById(String id);
 }

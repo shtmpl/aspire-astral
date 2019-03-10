@@ -50,9 +50,9 @@ public class VacancyController {
     }
 
     @GetMapping({"", "/index"})
-    public ResponseEntity<LayoutPage<List<VacancyOverview>>> idx(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                 @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                                 @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+    public ResponseEntity<LayoutPage<List<VacancyOverview>>> index(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                   @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                                   @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
         Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(origin, PageRequest.of(page, size));
 
         return ResponseEntity.ok(extractResponseFromPage(overviews));
@@ -76,7 +76,15 @@ public class VacancyController {
     @GetMapping("/{id}")
     public ResponseEntity<Vacancy> show(@PathVariable String id,
                                         @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy result = vacancyService.findVacancyById(origin, id);
+        Vacancy result = vacancyService.findVacancy(origin, id);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{id}/acquire")
+    public ResponseEntity<Vacancy> acquire(@PathVariable String id,
+                                           @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy result = vacancyService.acquireVacancy(origin, id);
 
         return ResponseEntity.ok(result);
     }

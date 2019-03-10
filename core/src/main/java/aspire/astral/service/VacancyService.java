@@ -11,7 +11,9 @@ public interface VacancyService {
 
     Page<VacancyOverview> findVacancyOverviewsByTitleLike(String origin, String title, Pageable pageable);
 
-    Vacancy findVacancyById(String origin, String id);
+    Vacancy findVacancy(String origin, String id);
+
+    Vacancy acquireVacancy(String origin, String id);
 
     Vacancy createVacancy(String origin, Vacancy vacancy);
 

@@ -5,6 +5,7 @@ import aspire.astral.domain.Employment;
 import aspire.astral.domain.Origin;
 import aspire.astral.domain.OriginUndefinedException;
 import aspire.astral.domain.OriginUnsupportedOperationException;
+import aspire.astral.domain.Salary;
 import aspire.astral.domain.Vacancy;
 import aspire.astral.domain.VacancyContact;
 import aspire.astral.domain.VacancyNotFoundException;
@@ -17,8 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
 
 @Service
@@ -73,18 +74,18 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     private Page<VacancyOverview> findLocalVacancyOverviewsByTitleLike(String title, Pageable pageable) {
-        return localVacancyRepository.findAllByTitleContaining(VacancyOverview.class, title, pageable);
+        return localVacancyRepository.findAllByTitleContainingIgnoreCase(VacancyOverview.class, title, pageable);
     }
 
     private Page<VacancyOverview> findRemoteVacancyOverviewsByTitleLike(String title, Pageable pageable) {
-        return remoteVacancyRepository.findAllByTitleContaining(VacancyOverview.class, title, pageable);
+        return remoteVacancyRepository.findAllByTitleContainingIgnoreCase(VacancyOverview.class, title, pageable);
     }
 
     @Override
-    public Vacancy findVacancyById(String origin, String id) {
+    public Vacancy findVacancy(String origin, String id) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancyById(id);
+                return findLocalVacancyById(Long.valueOf(id));
             case Origin.REMOTE:
                 return findRemoteVacancyById(id);
             default:
@@ -92,18 +93,37 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy findLocalVacancyById(String id) {
-        return localVacancyRepository.findById(Long.valueOf(id))
+    private Vacancy findLocalVacancyById(Long id) {
+        return localVacancyRepository.findById(id)
                 .orElseThrow(() -> new VacancyNotFoundException(
                         String.format("No vacancy for id: %s is defined in local repository", id)));
-
     }
 
     private Vacancy findRemoteVacancyById(String id) {
         return remoteVacancyRepository.findById(id)
                 .orElseThrow(() -> new VacancyNotFoundException(
                         String.format("No vacancy for id: %s is defined in remote repository", id)));
+    }
 
+    @Override
+    public Vacancy acquireVacancy(String origin, String id) {
+        switch (origin) {
+            case Origin.LOCAL:
+                throw new OriginUnsupportedOperationException(
+                        String.format("Operation: %s is not supported for origin: %s", "require", origin));
+            case Origin.REMOTE:
+                return acquireRemoteVacancy(id);
+            default:
+                throw new OriginUndefinedException();
+        }
+    }
+
+    private Vacancy acquireRemoteVacancy(String id) {
+        Vacancy vacancy = findRemoteVacancyById(id);
+
+        return localVacancyRepository.findByIdExternalAndOrigin(id, Origin.REMOTE)
+                .map((Vacancy it) -> updateLocalVacancy(it.getId(), vacancy))
+                .orElseGet(() -> createLocalVacancy(vacancy));
     }
 
     @Override
@@ -122,19 +142,41 @@ public class VacancyServiceImpl implements VacancyService {
     private Vacancy createLocalVacancy(Vacancy vacancy) {
         Vacancy result = new Vacancy();
 
-        vacancy.setDateCreated(Date.from(Instant.now()));
-
-        if (vacancy.getTitle() != null) {
-            result.setTitle(vacancy.getTitle());
+        String idExternal = vacancy.getIdExternal();
+        if (idExternal != null) {
+            result.setIdExternal(idExternal);
         }
 
-        if (vacancy.getDescription() != null) {
-            result.setDescription(vacancy.getDescription());
+        String origin = vacancy.getOrigin();
+        if (origin != null) {
+            result.setOrigin(origin);
         }
 
+        Date dateCreated = vacancy.getDateCreated();
+        if (dateCreated != null) {
+            result.setDateCreated(dateCreated);
+        } else {
+            result.setDateCreated(Date.from(Instant.now()));
+        }
 
-        if (vacancy.getSalary() != null) {
-            result.setSalary(vacancy.getSalary());
+        Date datePublished = vacancy.getDatePublished();
+        if (datePublished != null) {
+            result.setDatePublished(datePublished);
+        }
+
+        String title = vacancy.getTitle();
+        if (title != null) {
+            result.setTitle(title);
+        }
+
+        String description = vacancy.getDescription();
+        if (description != null) {
+            result.setDescription(description);
+        }
+
+        Salary salary = vacancy.getSalary();
+        if (salary != null) {
+            result.setSalary(salary);
         }
 
         Employment employment = vacancy.getEmployment();
@@ -142,9 +184,9 @@ public class VacancyServiceImpl implements VacancyService {
             result.setEmployment(employment);
         }
 
-        Employer employer = employerService.findOrSaveEmployer(vacancy.getEmployer());
+        Employer employer = vacancy.getEmployer();
         if (employer != null) {
-            result.setEmployer(employer);
+            result.setEmployer(employerService.findOrSaveEmployer(employer));
         }
 
         Set<VacancyContact> contacts = vacancy.getContacts();
@@ -159,7 +201,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy updateVacancy(String origin, String id, Vacancy vacancy) {
         switch (origin) {
             case Origin.LOCAL:
-                return updateLocalVacancy(id, vacancy);
+                return updateLocalVacancy(Long.valueOf(id), vacancy);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "update", origin));
@@ -168,41 +210,60 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy updateLocalVacancy(String id, Vacancy vacancy) {
-        Vacancy found = localVacancyRepository.findById(Long.valueOf(id)).orElse(null);
+    private Vacancy updateLocalVacancy(Long id, Vacancy vacancy) {
+        Vacancy found = localVacancyRepository.findById(id).orElse(null);
         if (found == null) {
-            return createLocalVacancy(vacancy);
+            return createLocalVacancy(vacancy); // Satisfy the idempotence
         }
 
-        String oldTitle = found.getTitle();
-        String newTitle = vacancy.getTitle();
-        if (newTitle != null && !newTitle.equals(oldTitle)) {
-            found.setTitle(newTitle);
+        String idExternal = vacancy.getIdExternal();
+        if (idExternal != null && !idExternal.equals(found.getIdExternal())) {
+            found.setIdExternal(idExternal);
         }
 
-        String oldDescription = found.getDescription();
-        String newDescription = vacancy.getDescription();
-        if (newDescription != null && !newDescription.equals(oldDescription)) {
-            found.setDescription(newDescription);
+        String origin = vacancy.getOrigin();
+        if (origin != null && !origin.equals(found.getOrigin())) {
+            found.setOrigin(origin);
         }
 
-        // FIXME:
-//        BigDecimal oldSalaryFrom = found.getSalaryFrom();
-//        BigDecimal newSalaryFrom = vacancy.getSalaryFrom();
-//        if (newSalaryFrom != null && !newSalaryFrom.equals(oldSalaryFrom)) {
-//            found.setSalaryFrom(newSalaryFrom);
-//        }
-//
-//        BigDecimal oldSalaryTo = found.getSalaryTo();
-//        BigDecimal newSalaryTo = vacancy.getSalaryTo();
-//        if (newSalaryTo != null && !newSalaryTo.equals(oldSalaryTo)) {
-//            found.setSalaryTo(newSalaryTo);
-//        }
+        Date dateCreated = vacancy.getDateCreated();
+        if (dateCreated != null && !dateCreated.equals(found.getDateCreated())) {
+            found.setDateCreated(dateCreated);
+        }
 
-        Employment oldEmployment = found.getEmployment();
-        Employment newEmployment = vacancy.getEmployment();
-        if (newEmployment != null && !newEmployment.equals(oldEmployment)) {
-            found.setEmployment(newEmployment);
+        Date datePublished = vacancy.getDatePublished();
+        if (datePublished != null && !datePublished.equals(found.getDatePublished())) {
+            found.setDatePublished(datePublished);
+        }
+
+        String title = vacancy.getTitle();
+        if (title != null && !title.equals(found.getTitle())) {
+            found.setTitle(title);
+        }
+
+        String description = vacancy.getDescription();
+        if (description != null && !description.equals(found.getDescription())) {
+            found.setDescription(description);
+        }
+
+        Salary salary = vacancy.getSalary();
+        if (salary != null && !salary.equals(found.getSalary())) {
+            found.setSalary(salary);
+        }
+
+        Employment employment = vacancy.getEmployment();
+        if (employment != null && !employment.equals(found.getEmployment())) {
+            found.setEmployment(employment);
+        }
+
+        Employer employer = vacancy.getEmployer();
+        if (employer != null) {
+            found.setEmployer(employerService.findOrSaveEmployer(employer));
+        }
+
+        Set<VacancyContact> contacts = vacancy.getContacts();
+        if (contacts != null && !contacts.isEmpty()) {
+            found.setContacts(contacts);
         }
 
         return localVacancyRepository.save(found);
@@ -212,7 +273,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy deleteVacancy(String origin, String id) {
         switch (origin) {
             case Origin.LOCAL:
-                return deleteLocalVacancy(id);
+                return deleteLocalVacancy(Long.valueOf(id));
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "delete", origin));
@@ -221,8 +282,8 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy deleteLocalVacancy(String id) {
-        Vacancy found = localVacancyRepository.findById(Long.valueOf(id)).orElse(null);
+    private Vacancy deleteLocalVacancy(Long id) {
+        Vacancy found = localVacancyRepository.findById(id).orElse(null);
         if (found == null) {
             throw new VacancyNotFoundException(String.format("No vacancy found for id: %s", id));
         }
