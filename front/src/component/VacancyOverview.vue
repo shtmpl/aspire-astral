@@ -20,7 +20,7 @@ export default {
     idx: Number,
     overview: {
       id: Number,
-      idExternal: String,
+      idExposed: String,
       origin: String,
       datePublished: String,
       title: String,

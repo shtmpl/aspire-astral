@@ -50,9 +50,9 @@ public class VacancyController {
     }
 
     @GetMapping({"", "/index"})
-    public ResponseEntity<LayoutPage<List<VacancyOverview>>> index(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                   @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                                   @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+    public ResponseEntity<LayoutPage<List<VacancyOverview>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                   @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                   @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
         Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(origin, PageRequest.of(page, size));
 
         return ResponseEntity.ok(extractResponseFromPage(overviews));
@@ -60,9 +60,9 @@ public class VacancyController {
 
 
     @GetMapping("/search")
-    public ResponseEntity<LayoutPage<List<VacancyOverview>>> search(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+    public ResponseEntity<LayoutPage<List<VacancyOverview>>> search(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                    @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
                                                                     @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                                    @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                                                     @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
             Page<VacancyOverview> overviews = vacancyService.findVacancyOverviewsByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));

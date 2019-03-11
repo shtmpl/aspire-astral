@@ -6,7 +6,7 @@ public interface VacancyOverview {
 
     Long getId();
 
-    String getIdExternal();
+    String getIdExposed();
 
     String getOrigin();
 

@@ -1,59 +1,72 @@
 <template>
   <div>
-    <div v-show="errors.length > 0">
-      <b-alert show
-               dismissible
-               variant="danger"
-               v-for="(error, idx) in errors"
-               v-bind:key="idx"
-               v-on:dismissed="errors.splice(idx, 1)">
-        {{ error }}
-      </b-alert>
-    </div>
-    <b-input-group>
-      <b-input-group-prepend>
+    <h1>Vacancies</h1>
+    <b-row v-show="errors.length > 0">
+      <b-col>
+        <b-alert show
+                 dismissible
+                 variant="danger"
+                 v-for="(error, idx) in errors"
+                 v-bind:key="idx"
+                 v-on:dismissed="errors.splice(idx, 1)">
+          {{ error }}
+        </b-alert>
+      </b-col>
+    </b-row>
+
+    <b-row>
+      <b-col>
         <b-form-radio-group id="radio-origin"
                             buttons
                             button-variant="outline-primary"
                             v-model="search.origin"
-                            v-bind:options="[{ text: 'Local', value: 'local' }, { text: 'Remote', value: 'remote' }]"/>
-      </b-input-group-prepend>
-      <b-form-input placeholder="Search by title"
-                    v-model="search.title"/>
-      <b-input-group-append>
-        <b-button v-on:click="findVacanciesDebounced"
-                  variant="outline-secondary">
-          <span v-if="loading"><b-spinner small/></span>
-          <span v-else><i class="fas fa-search"></i></span>
-          Search
+                            v-bind:options="[{ text: 'Local', value: 'local' }, { text: 'HeadHunter', value: 'remote' }]"/>
+      </b-col>
+    </b-row>
+
+    <b-row>
+      <b-col>
+        <b-input-group>
+          <b-form-input placeholder="Title"
+                        v-model="search.title"/>
+          <b-input-group-append>
+            <b-button v-on:click="findVacanciesDebounced"
+                      variant="outline-secondary">
+              <span v-if="loading"><b-spinner small/></span>
+              <span v-else><i class="fas fa-search"></i></span>
+              Search
+            </b-button>
+          </b-input-group-append>
+        </b-input-group>
+      </b-col>
+    </b-row>
+
+    <b-row align-h="start">
+      <b-col cols="4">
+        <b-pagination v-model="paging.page"
+                      v-bind:per-page="paging.size"
+                      v-bind:total-rows="paging.total"/>
+      </b-col>
+      <b-col cols="4">
+        <b-form-radio-group id="radio-size"
+                            buttons
+                            button-variant="outline-secondary"
+                            v-model="paging.size"
+                            v-bind:options="[{ text: '10', value: 10 }, { text: '25', value: 25 }, { text: '50', value: 50 }]"/>
+      </b-col>
+    </b-row>
+
+    <b-row v-for="(vacancy, idx) in vacancies"
+           v-bind:key="idx">
+      <b-col>
+        {{ (paging.page - 1) * paging.size + idx + 1 }} {{ vacancy.title }}
+        <b-button v-bind:variant="isImportedVacancy(vacancy) ? 'secondary' : 'outline-success'"
+                  v-on:click="importVacancy(idx, vacancy)">
+          <i class="fas fa-download"></i>
+          Import
         </b-button>
-      </b-input-group-append>
-    </b-input-group>
-    <b-form-radio-group id="radio-size"
-                        buttons
-                        button-variant="outline-secondary"
-                        v-model="paging.size"
-                        v-bind:options="[{ text: '10', value: 10 }, { text: '25', value: 25 }, { text: '50', value: 50 }]"/>
-    <b-pagination v-model="paging.page"
-                  v-bind:per-page="paging.size"
-                  v-bind:total-rows="paging.total"/>
-    <div class="overflow-auto"
-         v-if="loading">
-      <b-spinner/>
-    </div>
-    <div v-else>
-      <b-list-group flush>
-        <b-list-group-item v-for="(vacancy, idx) in vacancies"
-                           v-bind:key="idx">
-          {{ idxVacancy(idx) }} {{ vacancy.title }}
-          <b-button v-bind:variant="isImportedVacancy(vacancy) ? 'secondary' : 'outline-success'"
-                    v-on:click="importVacancy(idx, vacancy)">
-            <i class="fas fa-download"></i>
-            Import
-          </b-button>
-        </b-list-group-item>
-      </b-list-group>
-    </div>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -61,8 +74,6 @@
 import _ from 'lodash'
 
 import BAlert from 'bootstrap-vue/src/components/alert/alert'
-import BListGroup from 'bootstrap-vue/src/components/list-group/list-group'
-import BListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item'
 import BPagination from 'bootstrap-vue/src/components/pagination/pagination'
 import BFormRadioGroup from 'bootstrap-vue/src/components/form-radio/form-radio-group'
 import BSpinner from 'bootstrap-vue/src/components/spinner/spinner'
@@ -70,23 +81,23 @@ import BInputGroup from 'bootstrap-vue/src/components/input-group/input-group'
 import BFormInput from 'bootstrap-vue/src/components/form-input/form-input'
 import BInputGroupAppend from 'bootstrap-vue/src/components/input-group/input-group-append'
 import BButton from 'bootstrap-vue/src/components/button/button'
-import BInputGroupPrepend from 'bootstrap-vue/src/components/input-group/input-group-prepend'
+import BCol from 'bootstrap-vue/src/components/layout/col'
+import BRow from 'bootstrap-vue/src/components/layout/row'
 
 import ApiVacancy from '../api/vacancy'
 
 export default {
   name: 'VacancyIndex',
   components: {
+    BRow,
+    BCol,
     BAlert,
-    BInputGroupPrepend,
     BButton,
     BInputGroupAppend,
     BFormInput,
     BInputGroup,
     BSpinner,
     BFormRadioGroup,
-    BListGroup,
-    BListGroupItem,
     BPagination
   },
   data () {
@@ -117,9 +128,6 @@ export default {
     }
   },
   methods: {
-    idxVacancy (idx) {
-      return (this.paging.page - 1) * this.paging.size + idx + 1
-    },
     findVacancies () {
       let origin = this.search.origin
       let title = this.search.title
@@ -128,7 +136,7 @@ export default {
 
       this.loading = true
       if (title) {
-        ApiVacancy.searchByTitle(page, size, origin, title).then(response => {
+        ApiVacancy.searchVacancies(page, size, origin, title).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -137,7 +145,7 @@ export default {
           this.loading = false
         })
       } else {
-        ApiVacancy.index(page, size, origin).then(response => {
+        ApiVacancy.indexVacancies(page, size, origin).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {

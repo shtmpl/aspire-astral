@@ -121,7 +121,7 @@ public class VacancyServiceImpl implements VacancyService {
     private Vacancy acquireRemoteVacancy(String id) {
         Vacancy vacancy = findRemoteVacancyById(id);
 
-        return localVacancyRepository.findByIdExternalAndOrigin(id, Origin.REMOTE)
+        return localVacancyRepository.findByIdExposedAndOrigin(id, Origin.REMOTE)
                 .map((Vacancy it) -> updateLocalVacancy(it.getId(), vacancy))
                 .orElseGet(() -> createLocalVacancy(vacancy));
     }
@@ -142,9 +142,9 @@ public class VacancyServiceImpl implements VacancyService {
     private Vacancy createLocalVacancy(Vacancy vacancy) {
         Vacancy result = new Vacancy();
 
-        String idExternal = vacancy.getIdExternal();
-        if (idExternal != null) {
-            result.setIdExternal(idExternal);
+        String idExposed = vacancy.getIdExposed();
+        if (idExposed != null) {
+            result.setIdExposed(idExposed);
         }
 
         String origin = vacancy.getOrigin();
@@ -216,9 +216,9 @@ public class VacancyServiceImpl implements VacancyService {
             return createLocalVacancy(vacancy); // Satisfy the idempotence
         }
 
-        String idExternal = vacancy.getIdExternal();
-        if (idExternal != null && !idExternal.equals(found.getIdExternal())) {
-            found.setIdExternal(idExternal);
+        String idExposed = vacancy.getIdExposed();
+        if (idExposed != null && !idExposed.equals(found.getIdExposed())) {
+            found.setIdExposed(idExposed);
         }
 
         String origin = vacancy.getOrigin();

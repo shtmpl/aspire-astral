@@ -13,7 +13,7 @@ export default {
   name: 'Vacancy',
   props: {
     id: Number,
-    idExternal: String,
+    idExposed: String,
     origin: String,
     dateCreated: String,
     datePublished: String,

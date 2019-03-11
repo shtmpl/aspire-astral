@@ -13,5 +13,5 @@ public interface LocalVacancyRepository extends JpaRepository<Vacancy, Long> {
 
     <X> Page<X> findAllByTitleContainingIgnoreCase(Class<X> projection, String title, Pageable pageable);
 
-    Optional<Vacancy> findByIdExternalAndOrigin(String idExternal, String origin);
+    Optional<Vacancy> findByIdExposedAndOrigin(String idExposed, String origin);
 }

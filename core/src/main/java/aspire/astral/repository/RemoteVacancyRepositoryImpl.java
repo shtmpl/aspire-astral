@@ -69,7 +69,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     private static VacancyOverview extractVacancyOverviewFromResponse(ResponseVacanciesItem response) {
         RemoteVacancyOverview result = new RemoteVacancyOverview();
         result.setId(null);
-        result.setIdExternal(response.getId());
+        result.setIdExposed(response.getId());
         result.setOrigin(Origin.REMOTE);
         result.setDatePublished(response.getDatePublished());
         result.setTitle(response.getName());
@@ -86,7 +86,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
     private static Vacancy extractVacancyFromResponse(ResponseVacancy response) {
         Vacancy result = new Vacancy();
-        result.setIdExternal(response.getId());
+        result.setIdExposed(response.getId());
         result.setOrigin(Origin.REMOTE);
         result.setDateCreated(response.getCreatedAt());
         result.setTitle(response.getName());
@@ -148,7 +148,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         }
 
         Employer result = new Employer();
-        result.setIdExternal(employer.getId());
+        result.setIdExposed(employer.getId());
         result.setName(employer.getName());
 
         return result;
@@ -182,7 +182,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
     private static class RemoteVacancyOverview implements VacancyOverview {
 
         private Long id;
-        private String idExternal;
+        private String idExposed;
         private String origin;
         private Date datePublished;
         private String title;
@@ -198,12 +198,12 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         }
 
         @Override
-        public String getIdExternal() {
-            return idExternal;
+        public String getIdExposed() {
+            return idExposed;
         }
 
-        public void setIdExternal(String idExternal) {
-            this.idExternal = idExternal;
+        public void setIdExposed(String idExposed) {
+            this.idExposed = idExposed;
         }
 
         @Override

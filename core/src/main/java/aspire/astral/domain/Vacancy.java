@@ -24,7 +24,7 @@ import java.util.Set;
 @Entity
 @Table(name = "vacancy",
         indexes = {
-                @Index(name = "vacancy_id_external_origin_key", columnList = "idExternal, origin", unique = true)
+                @Index(name = "vacancy_id_exposed_origin_key", columnList = "idExposed, origin", unique = true)
         })
 @SequenceGenerator(name = "vacancy_id_seq")
 public class Vacancy {
@@ -35,7 +35,7 @@ public class Vacancy {
     private Long id;
 
     @Column
-    private String idExternal;
+    private String idExposed;
 
     @Column
     private String origin;
@@ -81,12 +81,12 @@ public class Vacancy {
         this.id = id;
     }
 
-    public String getIdExternal() {
-        return idExternal;
+    public String getIdExposed() {
+        return idExposed;
     }
 
-    public void setIdExternal(String idExternal) {
-        this.idExternal = idExternal;
+    public void setIdExposed(String idExposed) {
+        this.idExposed = idExposed;
     }
 
     public String getOrigin() {

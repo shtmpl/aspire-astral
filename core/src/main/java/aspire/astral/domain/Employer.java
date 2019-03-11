@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Entity
 @Table(name = "employer",
         indexes = {
-                @Index(name = "employer_id_external_key", columnList = "idExternal", unique = true),
+                @Index(name = "employer_id_exposed_key", columnList = "idExposed", unique = true),
                 @Index(name = "employer_name_key", columnList = "name", unique = true)
         })
 @SequenceGenerator(name = "employer_id_seq")
@@ -25,7 +25,7 @@ public class Employer {
     private Long id;
 
     @Column
-    private String idExternal;
+    private String idExposed;
 
     @NotBlank
     @Column
@@ -39,12 +39,12 @@ public class Employer {
         this.id = id;
     }
 
-    public String getIdExternal() {
-        return idExternal;
+    public String getIdExposed() {
+        return idExposed;
     }
 
-    public void setIdExternal(String idExternal) {
-        this.idExternal = idExternal;
+    public void setIdExposed(String idExposed) {
+        this.idExposed = idExposed;
     }
 
     public String getName() {
