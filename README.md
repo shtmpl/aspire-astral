@@ -10,6 +10,8 @@ This repository presents a program that provides ...
 
 `$ java -jar deploy/standalone.jar --server.port=10000`
 
+REST API documentation could be found at `http://localhost:8080/swagger-ui.html`
+
 
 ### Technology
 
