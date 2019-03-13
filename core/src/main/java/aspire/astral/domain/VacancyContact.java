@@ -5,9 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import java.util.UUID;
 
 @Entity
 @Table(name = "vacancy_contact")
@@ -18,6 +20,9 @@ public class VacancyContact {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vacancy_contact_id_seq")
     @Column
     private Long id;
+
+    @Column
+    private String idExposed;
 
     @NotBlank
     @Column
@@ -35,6 +40,14 @@ public class VacancyContact {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getIdExposed() {
+        return idExposed;
+    }
+
+    public void setIdExposed(String idExposed) {
+        this.idExposed = idExposed;
     }
 
     public String getName() {
@@ -59,5 +72,12 @@ public class VacancyContact {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    @PrePersist
+    public void onPrePersist() {
+        if (this.idExposed == null) {
+            this.idExposed = UUID.randomUUID().toString();
+        }
     }
 }

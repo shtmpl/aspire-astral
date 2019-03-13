@@ -5,6 +5,11 @@ import aspire.astral.controller.request.RequestSalary;
 import aspire.astral.controller.request.RequestVacancy;
 import aspire.astral.controller.request.RequestVacancyContact;
 import aspire.astral.controller.response.LayoutPage;
+import aspire.astral.controller.response.ResponseEmployer;
+import aspire.astral.controller.response.ResponseSalary;
+import aspire.astral.controller.response.ResponseVacancy;
+import aspire.astral.controller.response.ResponseVacancyContact;
+import aspire.astral.controller.response.ResponseVacancyOverview;
 import aspire.astral.domain.Employer;
 import aspire.astral.domain.Employment;
 import aspire.astral.domain.Origin;
@@ -32,6 +37,8 @@ import javax.validation.Valid;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/vacancy")
@@ -50,79 +57,72 @@ public class VacancyController {
     }
 
     @GetMapping({"", "/index"})
-    public ResponseEntity<LayoutPage<List<VacancyOverview>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                                   @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                   @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
+    public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                           @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                           @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
         Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(origin, PageRequest.of(page, size));
 
-        return ResponseEntity.ok(extractResponseFromPage(overviews));
+        return ResponseEntity.ok(extractResponseFromPage(overviews, VacancyController::extractResponseFromVacancyOverview));
     }
 
 
     @GetMapping("/search")
-    public ResponseEntity<LayoutPage<List<VacancyOverview>>> search(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                                                    @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
-                                                                    @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
-                                                                    @RequestParam MultiValueMap<String, String> params) {
+    public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> search(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                                            @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
+                                                                            @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
+                                                                            @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
             Page<VacancyOverview> overviews = vacancyService.findVacancyOverviewsByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
 
-            return ResponseEntity.ok(extractResponseFromPage(overviews));
+            return ResponseEntity.ok(extractResponseFromPage(overviews, VacancyController::extractResponseFromVacancyOverview));
         }
 
         return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Vacancy> show(@PathVariable String id,
-                                        @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy result = vacancyService.findVacancy(origin, id);
+    public ResponseEntity<ResponseVacancy> show(@PathVariable String id,
+                                                @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy vacancy = vacancyService.findVacancy(origin, id);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
     @GetMapping("/{id}/acquire")
-    public ResponseEntity<Vacancy> acquire(@PathVariable String id,
-                                           @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy result = vacancyService.acquireVacancy(origin, id);
+    public ResponseEntity<ResponseVacancy> acquire(@PathVariable String id,
+                                                   @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy vacancy = vacancyService.acquireVacancy(origin, id);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
     @PostMapping("")
-    public ResponseEntity<Vacancy> save(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                        @Valid @RequestBody RequestVacancy request) {
-        Vacancy result = extractVacancyFromRequest(request);
+    public ResponseEntity<ResponseVacancy> save(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                @Valid @RequestBody RequestVacancy request) {
+        Vacancy vacancy = vacancyService.createVacancy(origin, extractVacancyFromRequest(request));
 
-        return ResponseEntity.ok(vacancyService.createVacancy(origin, result));
+        return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vacancy> update(@PathVariable String id,
-                                          @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
-                                          @Valid @RequestBody RequestVacancy request) {
-        Vacancy result = extractVacancyFromRequest(request);
+    public ResponseEntity<ResponseVacancy> update(@PathVariable String id,
+                                                  @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+                                                  @Valid @RequestBody RequestVacancy request) {
+        Vacancy vacancy = vacancyService.updateVacancy(origin, id, extractVacancyFromRequest(request));
 
-        return ResponseEntity.ok(vacancyService.updateVacancy(origin, id, result));
+        return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Vacancy> delete(@PathVariable String id,
-                                          @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy result = vacancyService.deleteVacancy(origin, id);
+    public ResponseEntity<ResponseVacancy> delete(@PathVariable String id,
+                                                  @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy vacancy = vacancyService.deleteVacancy(origin, id);
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
-    private static <X> LayoutPage<List<X>> extractResponseFromPage(Page<X> page) {
-        LayoutPage<List<X>> result = new LayoutPage<>();
-        result.setPage(page.getNumber());
-        result.setSize(page.getSize());
-        result.setTotal(page.getTotalElements());
-        result.set("slice", page.getContent());
 
-        return result;
-    }
+    // Request processing
 
     private static Vacancy extractVacancyFromRequest(RequestVacancy request) {
         Vacancy result = new Vacancy();
@@ -189,4 +189,89 @@ public class VacancyController {
 
         return result;
     }
+
+
+    // Response processing
+
+    private static <X, F> LayoutPage<List<F>> extractResponseFromPage(Page<X> page, Function<X, F> f) {
+        LayoutPage<List<F>> result = new LayoutPage<>();
+        result.setPage(page.getNumber());
+        result.setSize(page.getSize());
+        result.setTotal(page.getTotalElements());
+        result.set("slice", page.getContent().stream().map(f).collect(Collectors.toList()));
+
+        return result;
+    }
+
+    private static ResponseVacancyOverview extractResponseFromVacancyOverview(VacancyOverview overview) {
+        ResponseVacancyOverview result = new ResponseVacancyOverview();
+        result.setId(overview.getIdExposed());
+        result.setOrigin(overview.getOrigin());
+        result.setDatePublished(overview.getDatePublished());
+        result.setTitle(overview.getTitle());
+        result.setSalary(extractResponseFromSalary(overview.getSalary()));
+
+        return result;
+    }
+
+    private static ResponseVacancy extractResponseFromVacancy(Vacancy vacancy) {
+        ResponseVacancy result = new ResponseVacancy();
+        result.setId(vacancy.getIdExposed());
+        result.setOrigin(vacancy.getOrigin());
+        result.setDateCreated(vacancy.getDateCreated());
+        result.setDatePublished(vacancy.getDatePublished());
+        result.setTitle(vacancy.getTitle());
+        result.setDescription(vacancy.getDescription());
+        result.setSalary(extractResponseFromSalary(vacancy.getSalary()));
+        result.setEmployment(vacancy.getEmployment());
+        result.setEmployer(extractResponseFromEmployer(vacancy.getEmployer()));
+        result.setContacts(vacancy.getContacts()
+                .stream()
+                .map(VacancyController::extractResponseFromVacancyContact)
+                .collect(Collectors.toList()));
+
+        return result;
+    }
+
+    private static ResponseSalary extractResponseFromSalary(Salary salary) {
+        if (salary == null) {
+            return null;
+        }
+
+        ResponseSalary result = new ResponseSalary();
+        result.setCurrency(salary.getCurrency());
+        result.setFrom(salary.getFrom());
+        result.setTo(salary.getTo());
+
+        return result;
+    }
+
+    private static ResponseEmployer extractResponseFromEmployer(Employer employer) {
+        if (employer == null) {
+            return null;
+        }
+
+        ResponseEmployer result = new ResponseEmployer();
+        result.setId(employer.getIdExposed());
+        result.setOrigin(employer.getOrigin());
+        result.setName(employer.getName());
+
+        return result;
+    }
+
+    private static ResponseVacancyContact extractResponseFromVacancyContact(VacancyContact contact) {
+        if (contact == null) {
+            return null;
+        }
+
+        ResponseVacancyContact result = new ResponseVacancyContact();
+        result.setId(contact.getIdExposed());
+        result.setName(contact.getName());
+        result.setEmail(contact.getEmail());
+        result.setPhone(contact.getPhone());
+
+        return result;
+    }
+
+
 }

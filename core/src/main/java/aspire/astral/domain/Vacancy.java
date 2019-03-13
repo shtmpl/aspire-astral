@@ -15,11 +15,14 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "vacancy",
@@ -159,5 +162,20 @@ public class Vacancy {
 
     public void setContacts(Set<VacancyContact> contacts) {
         this.contacts = contacts;
+    }
+
+    @PrePersist
+    public void onPrePersist() {
+        if (this.dateCreated == null) {
+            this.dateCreated = Date.from(Instant.now());
+        }
+
+        if (this.idExposed == null) {
+            this.idExposed = UUID.randomUUID().toString();
+        }
+
+        if (this.origin == null) {
+            this.origin = Origin.LOCAL;
+        }
     }
 }

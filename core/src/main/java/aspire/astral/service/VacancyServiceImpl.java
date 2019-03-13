@@ -85,7 +85,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy findVacancy(String origin, String id) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancyById(Long.valueOf(id));
+                return findLocalVacancyById(id);
             case Origin.REMOTE:
                 return findRemoteVacancyById(id);
             default:
@@ -93,8 +93,8 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy findLocalVacancyById(Long id) {
-        return localVacancyRepository.findById(id)
+    private Vacancy findLocalVacancyById(String id) {
+        return localVacancyRepository.findByIdExposedAndOrigin(id, Origin.LOCAL)
                 .orElseThrow(() -> new VacancyNotFoundException(
                         String.format("No vacancy for id: %s is defined in local repository", id)));
     }
@@ -122,7 +122,7 @@ public class VacancyServiceImpl implements VacancyService {
         Vacancy vacancy = findRemoteVacancyById(id);
 
         return localVacancyRepository.findByIdExposedAndOrigin(id, Origin.REMOTE)
-                .map((Vacancy it) -> updateLocalVacancy(it.getId(), vacancy))
+                .map((Vacancy it) -> updateLocalVacancy(it.getIdExposed(), vacancy))
                 .orElseGet(() -> createLocalVacancy(vacancy));
     }
 
@@ -201,7 +201,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy updateVacancy(String origin, String id, Vacancy vacancy) {
         switch (origin) {
             case Origin.LOCAL:
-                return updateLocalVacancy(Long.valueOf(id), vacancy);
+                return updateLocalVacancy(id, vacancy);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "update", origin));
@@ -210,8 +210,8 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy updateLocalVacancy(Long id, Vacancy vacancy) {
-        Vacancy found = localVacancyRepository.findById(id).orElse(null);
+    private Vacancy updateLocalVacancy(String id, Vacancy vacancy) {
+        Vacancy found = localVacancyRepository.findByIdExposedAndOrigin(id, Origin.LOCAL).orElse(null);
         if (found == null) {
             return createLocalVacancy(vacancy); // Satisfy the idempotence
         }
@@ -273,7 +273,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy deleteVacancy(String origin, String id) {
         switch (origin) {
             case Origin.LOCAL:
-                return deleteLocalVacancy(Long.valueOf(id));
+                return deleteLocalVacancy(id);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "delete", origin));
@@ -282,8 +282,8 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy deleteLocalVacancy(Long id) {
-        Vacancy found = localVacancyRepository.findById(id).orElse(null);
+    private Vacancy deleteLocalVacancy(String id) {
+        Vacancy found = localVacancyRepository.findByIdExposedAndOrigin(id, Origin.LOCAL).orElse(null);
         if (found == null) {
             throw new VacancyNotFoundException(String.format("No vacancy found for id: %s", id));
         }
