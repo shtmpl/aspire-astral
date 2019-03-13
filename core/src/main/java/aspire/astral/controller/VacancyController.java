@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -225,10 +226,7 @@ public class VacancyController {
         result.setSalary(extractResponseFromSalary(vacancy.getSalary()));
         result.setEmployment(vacancy.getEmployment());
         result.setEmployer(extractResponseFromEmployer(vacancy.getEmployer()));
-        result.setContacts(vacancy.getContacts()
-                .stream()
-                .map(VacancyController::extractResponseFromVacancyContact)
-                .collect(Collectors.toList()));
+        result.setContacts(extractResponseFromVacancyContacts(vacancy.getContacts()));
 
         return result;
     }
@@ -259,6 +257,17 @@ public class VacancyController {
         return result;
     }
 
+    private static List<ResponseVacancyContact> extractResponseFromVacancyContacts(Set<VacancyContact> contacts) {
+        if (contacts == null) {
+            return Collections.emptyList();
+        }
+
+        return contacts
+                .stream()
+                .map(VacancyController::extractResponseFromVacancyContact)
+                .collect(Collectors.toList());
+    }
+
     private static ResponseVacancyContact extractResponseFromVacancyContact(VacancyContact contact) {
         if (contact == null) {
             return null;
@@ -272,6 +281,4 @@ public class VacancyController {
 
         return result;
     }
-
-
 }

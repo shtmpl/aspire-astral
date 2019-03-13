@@ -14,6 +14,19 @@
       </b-col>
     </b-row>
 
+    <b-tabs pills>
+      <b-tab title="Local">
+        <!--<keep-alive>-->
+          <!--Hello, Local!-->
+        <!--</keep-alive>-->
+      </b-tab>
+      <b-tab title="HeadHunter">
+        <!--<keep-alive>-->
+          <!--Hello, HH!-->
+        <!--</keep-alive>-->
+      </b-tab>
+    </b-tabs>
+
     <b-row>
       <b-col>
         <b-form-radio-group id="radio-origin"
@@ -60,7 +73,7 @@
            v-bind:key="idx">
       <b-col>
         {{ (paging.page - 1) * paging.size + idx + 1 }} {{ vacancy.title }}
-        <b-button v-bind:variant="isImportedVacancy(vacancy) ? 'secondary' : 'outline-success'"
+        <b-button variant="outline-success"
                   v-on:click="importVacancy(idx, vacancy)">
           <i class="fas fa-download"></i>
           Import
@@ -85,10 +98,14 @@ import BCol from 'bootstrap-vue/src/components/layout/col'
 import BRow from 'bootstrap-vue/src/components/layout/row'
 
 import ApiVacancy from '../api/vacancy'
+import BTabs from 'bootstrap-vue/src/components/tabs/tabs'
+import BTab from 'bootstrap-vue/src/components/tabs/tab'
 
 export default {
   name: 'VacancyIndex',
   components: {
+    BTab,
+    BTabs,
     BRow,
     BCol,
     BAlert,
@@ -161,9 +178,6 @@ export default {
       }).catch(error => {
         this.errors.push(error)
       })
-    },
-    isImportedVacancy (vacancy) {
-      return vacancy.id !== null
     }
   }
 }

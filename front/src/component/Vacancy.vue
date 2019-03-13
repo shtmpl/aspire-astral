@@ -12,8 +12,7 @@
 export default {
   name: 'Vacancy',
   props: {
-    id: Number,
-    idExposed: String,
+    id: String,
     origin: String,
     dateCreated: String,
     datePublished: String,

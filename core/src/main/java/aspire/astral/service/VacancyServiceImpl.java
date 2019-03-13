@@ -110,7 +110,7 @@ public class VacancyServiceImpl implements VacancyService {
         switch (origin) {
             case Origin.LOCAL:
                 throw new OriginUnsupportedOperationException(
-                        String.format("Operation: %s is not supported for origin: %s", "require", origin));
+                        String.format("Operation: %s is not supported for origin: %s", "acquire", origin));
             case Origin.REMOTE:
                 return acquireRemoteVacancy(id);
             default:

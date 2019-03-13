@@ -8,6 +8,6 @@ export default {
     return API.get('/vacancy/search', { params: { page: page, size: size, origin: origin, 'title.like': title } })
   },
   async importVacancy (vacancy) {
-    return API.get(`/vacancy/${vacancy.idExposed}/acquire`, { params: { origin: 'remote' } })
+    return API.get(`/vacancy/${vacancy.id}/acquire`, { params: { origin: 'remote' } })
   }
 }
