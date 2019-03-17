@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
@@ -94,7 +93,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         result.setSalary(extractSalaryFromResponse(response.getSalary()));
         result.setEmployment(extractEmploymentFromResponse(response.getEmployment()));
         result.setEmployer(extractEmployerFromResponse(response));
-        result.setContacts(extractContactsFromResponse(response));
+        result.addContacts(extractContactsFromResponse(response));
 
         return result;
     }
@@ -154,7 +153,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         return result;
     }
 
-    private static Set<VacancyContact> extractContactsFromResponse(ResponseVacancy response) {
+    private static List<VacancyContact> extractContactsFromResponse(ResponseVacancy response) {
         ResponseVacancyContact contact = response.getContacts();
         if (contact == null) {
             return null;
@@ -176,7 +175,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
             }
         }
 
-        return Collections.singleton(result);
+        return Collections.singletonList(result);
     }
 
     private static class RemoteVacancyOverview implements VacancyOverview {

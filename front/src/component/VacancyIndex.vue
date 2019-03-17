@@ -20,10 +20,8 @@
         <vacancy-store-local v-on:error="showError"></vacancy-store-local>
       </b-tab>
       <b-tab title="HeadHunter">
-        <p>Remotely fetched vacancies</p>
-        <!--<vacancy-slice origin="remote"
-                       v-bind:vacancies="filterRemoteVacancies"
-                       v-on:vacancy-add="addVacancy"></vacancy-slice>-->
+        <vacancy-store-remote v-on:error="showError"
+        v-on:vacancy-add="addVacancy"></vacancy-store-remote>
       </b-tab>
     </b-tabs>
   </div>
@@ -37,16 +35,18 @@ import BRow from 'bootstrap-vue/src/components/layout/row'
 import BTabs from 'bootstrap-vue/src/components/tabs/tabs'
 import BTab from 'bootstrap-vue/src/components/tabs/tab'
 import VacancyStoreLocal from './VacancyStoreLocal'
+import VacancyStoreRemote from './VacancyStoreRemote'
 
 export default {
   name: 'VacancyIndex',
   components: {
-    VacancyStoreLocal,
     BTab,
     BTabs,
     BRow,
     BCol,
-    BAlert
+    BAlert,
+    VacancyStoreLocal,
+    VacancyStoreRemote
   },
   data () {
     return {
@@ -58,6 +58,9 @@ export default {
   methods: {
     showError (error) {
       this.errors.push(error)
+    },
+    addVacancy (vacancy) {
+      console.log(`Adding vacancy: ` + vacancy)
     }
   }
 }

@@ -45,19 +45,19 @@ public class VacancyServiceImpl implements VacancyService {
     public Page<VacancyOverview> findVacancyOverviews(String origin, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancyOverviews(pageable);
+                return findVacancyOverviewsInLocalRepository(pageable);
             case Origin.REMOTE:
-                return findRemoteVacancyOverviews(pageable);
+                return findVacancyOverviewsInRemoteRepository(pageable);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private Page<VacancyOverview> findLocalVacancyOverviews(Pageable pageable) {
+    private Page<VacancyOverview> findVacancyOverviewsInLocalRepository(Pageable pageable) {
         return localVacancyRepository.findAllBy(VacancyOverview.class, pageable);
     }
 
-    private Page<VacancyOverview> findRemoteVacancyOverviews(Pageable pageable) {
+    private Page<VacancyOverview> findVacancyOverviewsInRemoteRepository(Pageable pageable) {
         return remoteVacancyRepository.findAllBy(VacancyOverview.class, pageable);
     }
 
@@ -65,19 +65,19 @@ public class VacancyServiceImpl implements VacancyService {
     public Page<VacancyOverview> findVacancyOverviewsByTitleLike(String origin, String title, Pageable pageable) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancyOverviewsByTitleLike(title, pageable);
+                return findVacancyOverviewsInLocalRepositoryByTitleLike(title, pageable);
             case Origin.REMOTE:
-                return findRemoteVacancyOverviewsByTitleLike(title, pageable);
+                return findVacancyOverviewsInRemoteRepositoryByTitleLike(title, pageable);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private Page<VacancyOverview> findLocalVacancyOverviewsByTitleLike(String title, Pageable pageable) {
+    private Page<VacancyOverview> findVacancyOverviewsInLocalRepositoryByTitleLike(String title, Pageable pageable) {
         return localVacancyRepository.findAllByTitleContainingIgnoreCase(VacancyOverview.class, title, pageable);
     }
 
-    private Page<VacancyOverview> findRemoteVacancyOverviewsByTitleLike(String title, Pageable pageable) {
+    private Page<VacancyOverview> findVacancyOverviewsInRemoteRepositoryByTitleLike(String title, Pageable pageable) {
         return remoteVacancyRepository.findAllByTitleContainingIgnoreCase(VacancyOverview.class, title, pageable);
     }
 
@@ -85,21 +85,21 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy findVacancy(String origin, String id) {
         switch (origin) {
             case Origin.LOCAL:
-                return findLocalVacancyById(id);
+                return findVacancyInLocalRepositoryById(id);
             case Origin.REMOTE:
-                return findRemoteVacancyById(id);
+                return findVacancyInRemoteRepositoryById(id);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private Vacancy findLocalVacancyById(String id) {
+    private Vacancy findVacancyInLocalRepositoryById(String id) {
         return localVacancyRepository.findByIdExposedAndOrigin(id, Origin.LOCAL)
                 .orElseThrow(() -> new VacancyNotFoundException(
                         String.format("No vacancy for id: %s is defined in local repository", id)));
     }
 
-    private Vacancy findRemoteVacancyById(String id) {
+    private Vacancy findVacancyInRemoteRepositoryById(String id) {
         return remoteVacancyRepository.findById(id)
                 .orElseThrow(() -> new VacancyNotFoundException(
                         String.format("No vacancy for id: %s is defined in remote repository", id)));
@@ -112,25 +112,23 @@ public class VacancyServiceImpl implements VacancyService {
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "acquire", origin));
             case Origin.REMOTE:
-                return acquireRemoteVacancy(id);
+                return acquireVacancyFromRemoteRepositoryById(id);
             default:
                 throw new OriginUndefinedException();
         }
     }
 
-    private Vacancy acquireRemoteVacancy(String id) {
-        Vacancy vacancy = findRemoteVacancyById(id);
+    private Vacancy acquireVacancyFromRemoteRepositoryById(String id) {
+        Vacancy vacancy = findVacancyInRemoteRepositoryById(id);
 
-        return localVacancyRepository.findByIdExposedAndOrigin(id, Origin.REMOTE)
-                .map((Vacancy it) -> updateLocalVacancy(it.getIdExposed(), vacancy))
-                .orElseGet(() -> createLocalVacancy(vacancy));
+        return updateVacancyInLocalRepository(id, vacancy);
     }
 
     @Override
     public Vacancy createVacancy(String origin, Vacancy vacancy) {
         switch (origin) {
             case Origin.LOCAL:
-                return createLocalVacancy(vacancy);
+                return createVacancyInLocalRepository(vacancy);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "create", origin));
@@ -139,7 +137,7 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy createLocalVacancy(Vacancy vacancy) {
+    private Vacancy createVacancyInLocalRepository(Vacancy vacancy) {
         Vacancy result = new Vacancy();
 
         String idExposed = vacancy.getIdExposed();
@@ -191,7 +189,8 @@ public class VacancyServiceImpl implements VacancyService {
 
         Set<VacancyContact> contacts = vacancy.getContacts();
         if (contacts != null && !contacts.isEmpty()) {
-            result.setContacts(contacts);
+            result.clearContacts();
+            result.addContacts(contacts);
         }
 
         return localVacancyRepository.save(result);
@@ -201,7 +200,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy updateVacancy(String origin, String id, Vacancy vacancy) {
         switch (origin) {
             case Origin.LOCAL:
-                return updateLocalVacancy(id, vacancy);
+                return updateVacancyInLocalRepository(id, vacancy);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "update", origin));
@@ -210,20 +209,15 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy updateLocalVacancy(String id, Vacancy vacancy) {
-        Vacancy found = localVacancyRepository.findByIdExposedAndOrigin(id, Origin.LOCAL).orElse(null);
+    private Vacancy updateVacancyInLocalRepository(String id, Vacancy vacancy) {
+        Vacancy found = localVacancyRepository.findByIdExposedAndOrigin(id, vacancy.getOrigin()).orElse(null);
         if (found == null) {
-            return createLocalVacancy(vacancy); // Satisfy the idempotence
+            return createVacancyInLocalRepository(vacancy); // Satisfy the idempotence
         }
 
         String idExposed = vacancy.getIdExposed();
         if (idExposed != null && !idExposed.equals(found.getIdExposed())) {
             found.setIdExposed(idExposed);
-        }
-
-        String origin = vacancy.getOrigin();
-        if (origin != null && !origin.equals(found.getOrigin())) {
-            found.setOrigin(origin);
         }
 
         Date dateCreated = vacancy.getDateCreated();
@@ -263,7 +257,8 @@ public class VacancyServiceImpl implements VacancyService {
 
         Set<VacancyContact> contacts = vacancy.getContacts();
         if (contacts != null && !contacts.isEmpty()) {
-            found.setContacts(contacts);
+            found.clearContacts();
+            found.addContacts(contacts);
         }
 
         return localVacancyRepository.save(found);
@@ -273,7 +268,7 @@ public class VacancyServiceImpl implements VacancyService {
     public Vacancy deleteVacancy(String origin, String id) {
         switch (origin) {
             case Origin.LOCAL:
-                return deleteLocalVacancy(id);
+                return deleteVacancyInLocalRepositoryById(origin, id);
             case Origin.REMOTE:
                 throw new OriginUnsupportedOperationException(
                         String.format("Operation: %s is not supported for origin: %s", "delete", origin));
@@ -282,8 +277,8 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private Vacancy deleteLocalVacancy(String id) {
-        Vacancy found = localVacancyRepository.findByIdExposedAndOrigin(id, Origin.LOCAL).orElse(null);
+    private Vacancy deleteVacancyInLocalRepositoryById(String origin, String id) {
+        Vacancy found = localVacancyRepository.findByIdExposedAndOrigin(id, origin).orElse(null);
         if (found == null) {
             throw new VacancyNotFoundException(String.format("No vacancy found for id: %s", id));
         }

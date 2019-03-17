@@ -44,9 +44,10 @@
              v-for="(vacancy, idx) in vacancies"
              v-bind:key="idx">
         <b-col>
-          <vacancy-overview-local v-bind="vacancy"
-                                  v-bind:idx="pageIdx(idx)"
-                                  v-on:vacancy-delete="deleteVacancy"></vacancy-overview-local>
+          <vacancy-overview-remote v-bind="vacancy"
+                                   v-bind:idx="pageIdx(idx)"
+                                   v-bind:imported="vacancyIdsImported.includes(vacancy.id)"
+                                   v-on:vacancy-import="importVacancy"></vacancy-overview-remote>
         </b-col>
       </b-row>
     </div>
@@ -68,10 +69,10 @@ import BInputGroupText from 'bootstrap-vue/src/components/input-group/input-grou
 import BFormSelect from 'bootstrap-vue/src/components/form-select/form-select'
 
 import ApiVacancy from '../api/vacancy'
-import VacancyOverviewLocal from './VacancyOverviewLocal'
+import VacancyOverviewRemote from './VacancyOverviewRemote'
 
 export default {
-  name: 'VacancyStoreLocal',
+  name: 'VacancyStoreRemote',
   components: {
     BFormSelect,
     BInputGroupText,
@@ -83,12 +84,13 @@ export default {
     BInputGroup,
     BSpinner,
     BPagination,
-    VacancyOverviewLocal
+    VacancyOverviewRemote
   },
   data () {
     return {
-      origin: 'local',
+      origin: 'remote',
       vacancies: [],
+      vacancyIdsImported: [],
       searching: false,
       search: {
         title: ''
@@ -142,9 +144,12 @@ export default {
         })
       }
     },
-    deleteVacancy (id) {
-      ApiVacancy.deleteVacancy(this.origin, id).then(response => {
-        this.findVacancies()
+    importVacancy (id) {
+      ApiVacancy.importVacancy(this.origin, id).then(response => {
+        let vacancy = response.data
+
+        this.vacancyIdsImported.push(vacancy.id) // FIXME
+        this.$emit('vacancy-add', vacancy)
       }).catch(error => {
         this.$emit('error', error)
       })

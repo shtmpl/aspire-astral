@@ -14,6 +14,17 @@
           {{ formatSalary }}
         </b-card-text>
       </b-card-body>
+      <b-card-body>
+        <b-row align-h="end">
+          <b-col cols="auto">
+            <b-button variant="outline-danger"
+                      v-on:click="$emit('vacancy-delete', id)">
+              <span><i class="fas fa-trash"></i></span>
+              Delete
+            </b-button>
+          </b-col>
+        </b-row>
+      </b-card-body>
     </b-card>
   </div>
 </template>
@@ -26,12 +37,16 @@ import BCardText from 'bootstrap-vue/src/components/card/card-text'
 import BCardBody from 'bootstrap-vue/src/components/card/card-body'
 import BCardTitle from 'bootstrap-vue/src/components/card/card-title'
 import BCardSubTitle from 'bootstrap-vue/src/components/card/card-sub-title'
+import BRow from 'bootstrap-vue/src/components/layout/row'
+import BCol from 'bootstrap-vue/src/components/layout/col'
+import BButton from 'bootstrap-vue/src/components/button/button'
 
 export default {
-  name: 'VacancyOverview',
-  components: { BCardSubTitle, BCardTitle, BCardBody, BCardText, BCard },
+  name: 'VacancyOverviewLocal',
+  components: { BButton, BCol, BRow, BCardSubTitle, BCardTitle, BCardBody, BCardText, BCard },
   props: {
     idx: Number,
+    id: String,
     datePublished: String,
     title: String,
     salary: Object
@@ -54,7 +69,7 @@ export default {
         return 'Salary: Unspecified'
       }
 
-      return 'Salary: ' + this.formatSalaryRange(salary.from, salary.to) + salary.currency
+      return 'Salary: ' + this.formatSalaryRange(salary.from, salary.to) + ' ' + salary.currency
     }
   },
   methods: {

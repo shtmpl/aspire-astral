@@ -7,7 +7,10 @@ export default {
   async searchVacancies (page, size, origin, title) {
     return API.get('/vacancy/search', { params: { page: page, size: size, origin: origin, 'title.like': title } })
   },
-  async importVacancy (vacancy) {
-    return API.get(`/vacancy/${vacancy.id}/acquire`, { params: { origin: 'remote' } })
+  async importVacancy (origin, id) {
+    return API.get(`/vacancy/${id}/acquire`, { params: { origin: origin } })
+  },
+  async deleteVacancy (origin, id) {
+    return API.delete(`/vacancy/${id}`, { params: { origin: origin } })
   }
 }

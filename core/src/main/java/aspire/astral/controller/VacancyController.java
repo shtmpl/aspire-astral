@@ -133,7 +133,7 @@ public class VacancyController {
         result.setSalary(extractSalaryFromRequest(request));
         result.setEmployment(Employment.fromString(request.getEmployment()));
         result.setEmployer(extractEmployerFromRequest(request));
-        result.setContacts(extractContactsFromRequest(request));
+        result.addContacts(extractContactsFromRequest(request));
 
         return result;
     }

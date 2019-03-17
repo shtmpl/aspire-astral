@@ -20,7 +20,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -74,7 +76,7 @@ public class Vacancy {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "vacancy_contact_id")
-    private Set<VacancyContact> contacts;
+    private Set<VacancyContact> contacts = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -160,8 +162,24 @@ public class Vacancy {
         return contacts;
     }
 
-    public void setContacts(Set<VacancyContact> contacts) {
-        this.contacts = contacts;
+    public void addContact(VacancyContact contact) {
+        if (contact == null) {
+            return;
+        }
+
+        this.contacts.add(contact);
+    }
+
+    public void addContacts(Collection<VacancyContact> contacts) {
+        if (contacts == null || contacts.isEmpty()) {
+            return;
+        }
+
+        this.contacts.addAll(contacts);
+    }
+
+    public void clearContacts() {
+        this.contacts.clear();
     }
 
     @PrePersist

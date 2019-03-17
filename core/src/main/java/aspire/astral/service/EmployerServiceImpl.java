@@ -24,7 +24,7 @@ public class EmployerServiceImpl implements EmployerService {
                     Employer result = new Employer();
                     result.setName(name);
 
-                    return localEmployerRepository.save(employer);
+                    return localEmployerRepository.save(result);
                 });
     }
 }
