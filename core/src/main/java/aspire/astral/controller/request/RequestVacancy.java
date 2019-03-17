@@ -2,9 +2,12 @@ package aspire.astral.controller.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 
 public class RequestVacancy {
+
+    private Date datePublished;
 
     @NotBlank
     private String title;
@@ -19,6 +22,14 @@ public class RequestVacancy {
     private RequestEmployer employer;
 
     private List<RequestVacancyContact> contacts;
+
+    public Date getDatePublished() {
+        return datePublished;
+    }
+
+    public void setDatePublished(Date datePublished) {
+        this.datePublished = datePublished;
+    }
 
     public String getTitle() {
         return title;

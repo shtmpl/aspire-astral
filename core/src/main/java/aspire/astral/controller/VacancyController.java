@@ -127,6 +127,7 @@ public class VacancyController {
 
     private static Vacancy extractVacancyFromRequest(RequestVacancy request) {
         Vacancy result = new Vacancy();
+        result.setDatePublished(request.getDatePublished());
         result.setTitle(request.getTitle());
         result.setDescription(request.getDescription());
         result.setSalary(extractSalaryFromRequest(request));
