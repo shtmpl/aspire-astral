@@ -87,7 +87,7 @@ export default {
   },
   data () {
     return {
-      origin: 'local',
+      repository: 'local',
       vacancies: [],
       searching: false,
       search: {
@@ -116,14 +116,14 @@ export default {
       return (this.paging.page - 1) * this.paging.size + idx + 1
     },
     findVacancies () {
-      let origin = this.origin
-      let title = this.search.title
+      let repository = this.repository
       let page = this.paging.page - 1
       let size = this.paging.size
+      let title = this.search.title
 
       this.searching = true
       if (title) {
-        ApiVacancy.searchVacancies(page, size, origin, title).then(response => {
+        ApiVacancy.searchVacancies(repository, page, size, title).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -132,7 +132,7 @@ export default {
           this.searching = false
         })
       } else {
-        ApiVacancy.indexVacancies(page, size, origin).then(response => {
+        ApiVacancy.indexVacancies(repository, page, size).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -142,8 +142,10 @@ export default {
         })
       }
     },
-    deleteVacancy (id) {
-      ApiVacancy.deleteVacancy(this.origin, id).then(response => {
+    deleteVacancy (vacancy) {
+      let repository = this.repository
+
+      ApiVacancy.deleteVacancy(repository, vacancy.id, vacancy.origin).then(response => {
         this.findVacancies()
       }).catch(error => {
         this.$emit('error', error)

@@ -1,16 +1,19 @@
 import { API } from './index'
 
 export default {
-  async indexVacancies (page, size, origin) {
-    return API.get('/vacancy/index', { params: { page: page, size: size, origin: origin } })
+  async indexVacancies (repository, page, size) {
+    return API.get(`/vacancy/${repository}/index`, { params: { page: page, size: size } })
   },
-  async searchVacancies (page, size, origin, title) {
-    return API.get('/vacancy/search', { params: { page: page, size: size, origin: origin, 'title.like': title } })
+  async searchVacancies (repository, page, size, title) {
+    return API.get(`/vacancy/${repository}/search`, { params: { page: page, size: size, 'title.like': title } })
   },
-  async importVacancy (origin, id) {
-    return API.get(`/vacancy/${id}/acquire`, { params: { origin: origin } })
+  async showVacancy (repository, id, origin) {
+    return API.get(`/vacancy/${repository}/${id}`, { params: { origin: origin } })
   },
-  async deleteVacancy (origin, id) {
-    return API.delete(`/vacancy/${id}`, { params: { origin: origin } })
+  async importVacancy (repository, id, origin) {
+    return API.get(`/vacancy/${repository}/${id}/acquire`, { params: { origin: origin } })
+  },
+  async deleteVacancy (repository, id, origin) {
+    return API.delete(`/vacancy/${repository}/${id}`, { params: { origin: origin } })
   }
 }

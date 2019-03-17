@@ -7,17 +7,17 @@ import org.springframework.data.domain.Pageable;
 
 public interface VacancyService {
 
-    Page<VacancyOverview> findVacancyOverviews(String origin, Pageable pageable);
+    Page<VacancyOverview> findVacancyOverviews(String repository, Pageable pageable);
 
-    Page<VacancyOverview> findVacancyOverviewsByTitleLike(String origin, String title, Pageable pageable);
+    Page<VacancyOverview> findVacancyOverviewsByTitleLike(String repository, String title, Pageable pageable);
 
-    Vacancy findVacancy(String origin, String id);
+    Vacancy findVacancy(String repository, String id, String origin);
 
-    Vacancy acquireVacancy(String origin, String id);
+    Vacancy acquireVacancy(String repository, String id, String origin);
 
-    Vacancy createVacancy(String origin, Vacancy vacancy);
+    Vacancy createVacancy(String repository, Vacancy vacancy);
 
-    Vacancy updateVacancy(String origin, String id, Vacancy vacancy);
+    Vacancy updateVacancy(String repository, String id, String origin, Vacancy vacancy);
 
-    Vacancy deleteVacancy(String origin, String id);
+    Vacancy deleteVacancy(String repository, String id, String origin);
 }

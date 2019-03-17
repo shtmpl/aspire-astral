@@ -17,8 +17,8 @@
       <b-card-body>
         <b-row align-h="end">
           <b-col cols="auto">
-            <b-button v-bind:variant="variantImportButton"
-                      v-on:click="$emit('vacancy-import', id)">
+            <b-button v-bind:variant="varyImportButton"
+                      v-on:click="$emit('vacancy-import', { id: id, origin: origin })"> <!--FIXME-->
               <span><i class="fas fa-download"></i></span>
               Import
             </b-button>
@@ -41,6 +41,8 @@ import BRow from 'bootstrap-vue/src/components/layout/row'
 import BCol from 'bootstrap-vue/src/components/layout/col'
 import BButton from 'bootstrap-vue/src/components/button/button'
 
+import ApiVacancy from '../api/vacancy'
+
 export default {
   name: 'VacancyOverviewRemote',
   components: {
@@ -56,10 +58,15 @@ export default {
   props: {
     idx: Number,
     id: String,
+    origin: String,
     datePublished: String,
     title: String,
-    salary: Object,
-    imported: Boolean
+    salary: Object
+  },
+  data () {
+    return {
+      imported: false
+    }
   },
   computed: {
     formatTitle () {
@@ -81,7 +88,7 @@ export default {
 
       return 'Salary: ' + this.formatSalaryRange(salary.from, salary.to) + ' ' + salary.currency
     },
-    variantImportButton () {
+    varyImportButton () {
       console.log('Imported: ' + this.imported)
       return this.imported ? 'success' : 'outline-success'
     }
@@ -99,6 +106,15 @@ export default {
       }
 
       return 'From ' + from + ' To ' + to
+    },
+    isImportedVacancy () {
+      let repository = 'local'
+
+      ApiVacancy.showVacancy(repository, this.id, this.origin).then(_ => {
+        this.imported = true
+      }).catch(_ => {
+        this.imported = false
+      })
     }
   }
 }

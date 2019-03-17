@@ -1,6 +1,5 @@
 package aspire.astral;
 
-import aspire.astral.Application;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +8,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringRunner.class)
@@ -18,17 +16,19 @@ import static org.hamcrest.Matchers.*;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SelfApiIntegrationTest {
 
+    private static final String PATH_VACANCY_INDEX = "/api/vacancy/index/{repository}";
+
     @LocalServerPort
     private int port;
 
     @Test
-    public void apiMakeCompanyInfoRequestEndpointIsAvailable() {
-        given()
+    public void shouldAllowRequestingVacancyIndex() {
+        given().baseUri("http://localhost:" + port)
                 .contentType(ContentType.JSON)
                 .body("{}")
-                .when()
-                .post("http://localhost:" + port + "/vacancies")
-                .then()
-                .statusCode(not(equalTo(404)));
+                .when().log().all()
+                .get(PATH_VACANCY_INDEX, "local")
+                .then().log().all()
+                .statusCode(200);
     }
 }

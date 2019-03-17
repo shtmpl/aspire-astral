@@ -46,7 +46,6 @@
         <b-col>
           <vacancy-overview-remote v-bind="vacancy"
                                    v-bind:idx="pageIdx(idx)"
-                                   v-bind:imported="vacancyIdsImported.includes(vacancy.id)"
                                    v-on:vacancy-import="importVacancy"></vacancy-overview-remote>
         </b-col>
       </b-row>
@@ -88,9 +87,8 @@ export default {
   },
   data () {
     return {
-      origin: 'remote',
+      repository: 'remote',
       vacancies: [],
-      vacancyIdsImported: [],
       searching: false,
       search: {
         title: ''
@@ -118,14 +116,14 @@ export default {
       return (this.paging.page - 1) * this.paging.size + idx + 1
     },
     findVacancies () {
-      let origin = this.origin
-      let title = this.search.title
+      let repository = this.repository
       let page = this.paging.page - 1
       let size = this.paging.size
+      let title = this.search.title
 
       this.searching = true
       if (title) {
-        ApiVacancy.searchVacancies(page, size, origin, title).then(response => {
+        ApiVacancy.searchVacancies(repository, page, size, title).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -134,7 +132,7 @@ export default {
           this.searching = false
         })
       } else {
-        ApiVacancy.indexVacancies(page, size, origin).then(response => {
+        ApiVacancy.indexVacancies(repository, page, size).then(response => {
           this.paging.total = response.data.total
           this.vacancies = response.data.slice
         }).catch(error => {
@@ -144,11 +142,12 @@ export default {
         })
       }
     },
-    importVacancy (id) {
-      ApiVacancy.importVacancy(this.origin, id).then(response => {
+    importVacancy (vacancy) {
+      let repository = this.repository
+
+      ApiVacancy.importVacancy(repository, vacancy.id, vacancy.origin).then(response => {
         let vacancy = response.data
 
-        this.vacancyIdsImported.push(vacancy.id) // FIXME
         this.$emit('vacancy-add', vacancy)
       }).catch(error => {
         this.$emit('error', error)

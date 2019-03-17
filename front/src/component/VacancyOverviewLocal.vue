@@ -18,7 +18,7 @@
         <b-row align-h="end">
           <b-col cols="auto">
             <b-button variant="outline-danger"
-                      v-on:click="$emit('vacancy-delete', id)">
+                      v-on:click="$emit('vacancy-delete', { id: id, origin: origin })"> <!--FIXME-->
               <span><i class="fas fa-trash"></i></span>
               Delete
             </b-button>
@@ -43,10 +43,20 @@ import BButton from 'bootstrap-vue/src/components/button/button'
 
 export default {
   name: 'VacancyOverviewLocal',
-  components: { BButton, BCol, BRow, BCardSubTitle, BCardTitle, BCardBody, BCardText, BCard },
+  components: {
+    BButton,
+    BCol,
+    BRow,
+    BCardSubTitle,
+    BCardTitle,
+    BCardBody,
+    BCardText,
+    BCard
+  },
   props: {
     idx: Number,
     id: String,
+    origin: String,
     datePublished: String,
     title: String,
     salary: Object

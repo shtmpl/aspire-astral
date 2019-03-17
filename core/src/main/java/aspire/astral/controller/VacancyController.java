@@ -57,23 +57,24 @@ public class VacancyController {
         this.vacancyService = vacancyService;
     }
 
-    @GetMapping({"", "/index"})
-    public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> index(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+    @GetMapping({"/{repository}", "/{repository}/index"})
+    public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> index(@PathVariable String repository,
                                                                            @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
                                                                            @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
-        Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(origin, PageRequest.of(page, size));
+        Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(repository, PageRequest.of(page, size));
 
         return ResponseEntity.ok(extractResponseFromPage(overviews, VacancyController::extractResponseFromVacancyOverview));
     }
 
 
-    @GetMapping("/search")
-    public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> search(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+    @GetMapping("/{repository}/search")
+    public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> search(@PathVariable String repository,
                                                                             @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
                                                                             @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
                                                                             @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
-            Page<VacancyOverview> overviews = vacancyService.findVacancyOverviewsByTitleLike(origin, params.getFirst("title.like"), PageRequest.of(page, size));
+            Page<VacancyOverview> overviews = vacancyService
+                    .findVacancyOverviewsByTitleLike(repository, params.getFirst("title.like"), PageRequest.of(page, size));
 
             return ResponseEntity.ok(extractResponseFromPage(overviews, VacancyController::extractResponseFromVacancyOverview));
         }
@@ -81,43 +82,47 @@ public class VacancyController {
         return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseVacancy> show(@PathVariable String id,
+    @GetMapping("/{repository}/{id}")
+    public ResponseEntity<ResponseVacancy> show(@PathVariable String repository,
+                                                @PathVariable String id,
                                                 @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy vacancy = vacancyService.findVacancy(origin, id);
+        Vacancy vacancy = vacancyService.findVacancy(repository, id, origin);
 
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
-    @GetMapping("/{id}/acquire")
-    public ResponseEntity<ResponseVacancy> acquire(@PathVariable String id,
+    @GetMapping("/{repository}/{id}/acquire")
+    public ResponseEntity<ResponseVacancy> acquire(@PathVariable String repository,
+                                                   @PathVariable String id,
                                                    @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy vacancy = vacancyService.acquireVacancy(origin, id);
+        Vacancy vacancy = vacancyService.acquireVacancy(repository, id, origin);
 
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
-    @PostMapping("")
-    public ResponseEntity<ResponseVacancy> save(@RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
+    @PostMapping("/{repository}")
+    public ResponseEntity<ResponseVacancy> save(@PathVariable String repository,
                                                 @Valid @RequestBody RequestVacancy request) {
-        Vacancy vacancy = vacancyService.createVacancy(origin, extractVacancyFromRequest(request));
+        Vacancy vacancy = vacancyService.createVacancy(repository, extractVacancyFromRequest(request));
 
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseVacancy> update(@PathVariable String id,
+    @PutMapping("/{repository}/{id}")
+    public ResponseEntity<ResponseVacancy> update(@PathVariable String repository,
+                                                  @PathVariable String id,
                                                   @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin,
                                                   @Valid @RequestBody RequestVacancy request) {
-        Vacancy vacancy = vacancyService.updateVacancy(origin, id, extractVacancyFromRequest(request));
+        Vacancy vacancy = vacancyService.updateVacancy(repository, id, origin, extractVacancyFromRequest(request));
 
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseVacancy> delete(@PathVariable String id,
+    @DeleteMapping("/{repository}/{id}")
+    public ResponseEntity<ResponseVacancy> delete(@PathVariable String repository,
+                                                  @PathVariable String id,
                                                   @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy vacancy = vacancyService.deleteVacancy(origin, id);
+        Vacancy vacancy = vacancyService.deleteVacancy(repository, id, origin);
 
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }

@@ -1,7 +1,7 @@
 package aspire.astral.controller;
 
 import aspire.astral.controller.response.ResponseError;
-import aspire.astral.domain.OriginUndefinedException;
+import aspire.astral.domain.RepositoryUndefinedException;
 import aspire.astral.domain.VacancyNotFoundException;
 import aspire.astral.integration.IntegrationException;
 import org.slf4j.Logger;
@@ -16,10 +16,10 @@ public class ApiExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @ExceptionHandler(OriginUndefinedException.class)
-    public ResponseEntity<ResponseError> handleOriginUnknownException(OriginUndefinedException exception) {
+    @ExceptionHandler(RepositoryUndefinedException.class)
+    public ResponseEntity<ResponseError> handleRepositoryUndefinedException(RepositoryUndefinedException exception) {
         ResponseError response = new ResponseError();
-        response.setCode("origin.unknown");
+        response.setCode("repository.undefined");
         response.setReason(exception.getMessage());
 
         return ResponseEntity.badRequest().body(response);
