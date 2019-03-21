@@ -21,6 +21,7 @@ import aspire.astral.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,7 +62,9 @@ public class VacancyController {
     public ResponseEntity<LayoutPage<List<ResponseVacancyOverview>>> index(@PathVariable String repository,
                                                                            @RequestParam(required = false, defaultValue = DEFAULT_PAGE) int page,
                                                                            @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size) {
-        Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(repository, PageRequest.of(page, size));
+        Page<VacancyOverview> overviews = vacancyService.findVacancyOverviews(
+                repository,
+                PageRequest.of(page, size, Sort.by("datePublished").descending()));
 
         return ResponseEntity.ok(extractResponseFromPage(overviews, VacancyController::extractResponseFromVacancyOverview));
     }
@@ -73,8 +76,10 @@ public class VacancyController {
                                                                             @RequestParam(required = false, defaultValue = DEFAULT_SIZE) int size,
                                                                             @RequestParam MultiValueMap<String, String> params) {
         if (params.containsKey("title.like")) {
-            Page<VacancyOverview> overviews = vacancyService
-                    .findVacancyOverviewsByTitleLike(repository, params.getFirst("title.like"), PageRequest.of(page, size));
+            Page<VacancyOverview> overviews = vacancyService.findVacancyOverviewsByTitleLike(
+                    repository,
+                    params.getFirst("title.like"),
+                    PageRequest.of(page, size, Sort.by("datePublished").descending()));
 
             return ResponseEntity.ok(extractResponseFromPage(overviews, VacancyController::extractResponseFromVacancyOverview));
         }

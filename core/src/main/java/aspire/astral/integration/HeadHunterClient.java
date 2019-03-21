@@ -26,8 +26,9 @@ public class HeadHunterClient {
     static final String QUERY_PARAM_SIZE = "per_page";
 
     static final String PATH_VACANCIES = "/vacancies";
-    static final String QUERY_PARAM_SEARCH_FIELD = "search_field";
-    static final String QUERY_PARAM_SEARCH_VALUE = "text";
+    static final String QUERY_PARAM_SORT_BY = "order_by";
+    static final String QUERY_PARAM_FIND_BY = "search_field";
+    static final String QUERY_PARAM_FIND_VALUE = "text";
 
     static final String PATH_VACANCY_BY_ID = "/vacancies/{id}";
 
@@ -61,8 +62,9 @@ public class HeadHunterClient {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(headHunterProperties.getUrl())
                 .path(PATH_VACANCIES)
-                .queryParam(QUERY_PARAM_SEARCH_FIELD, "name")
-                .queryParam(QUERY_PARAM_SEARCH_VALUE, title)
+                .queryParam(QUERY_PARAM_SORT_BY, "publication_time")
+                .queryParam(QUERY_PARAM_FIND_BY, "name")
+                .queryParam(QUERY_PARAM_FIND_VALUE, title)
                 .queryParam(QUERY_PARAM_PAGE, pageable.getPageNumber())
                 .queryParam(QUERY_PARAM_SIZE, pageable.getPageSize());
 

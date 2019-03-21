@@ -125,7 +125,7 @@ export default {
       if (title) {
         ApiVacancy.searchVacancies(repository, page, size, title).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.slice
+          this.vacancies = response.data.slice // FIXME: assoc import field
         }).catch(error => {
           this.$emit('error', error)
         }).finally(() => {
@@ -134,7 +134,7 @@ export default {
       } else {
         ApiVacancy.indexVacancies(repository, page, size).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.slice
+          this.vacancies = response.data.slice // FIXME: assoc import field
         }).catch(error => {
           this.$emit('error', error)
         }).finally(() => {
@@ -146,9 +146,6 @@ export default {
       let repository = this.repository
 
       ApiVacancy.importVacancy(repository, vacancy.id, vacancy.origin).then(response => {
-        let vacancy = response.data
-
-        this.$emit('vacancy-add', vacancy)
       }).catch(error => {
         this.$emit('error', error)
       })

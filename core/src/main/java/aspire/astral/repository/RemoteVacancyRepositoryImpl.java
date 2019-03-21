@@ -88,6 +88,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         result.setIdExposed(response.getId());
         result.setOrigin(Origin.REMOTE);
         result.setDateCreated(response.getCreatedAt());
+        result.setDatePublished(response.getPublishedAt());
         result.setTitle(response.getName());
         result.setDescription(response.getDescription());
         result.setSalary(extractSalaryFromResponse(response.getSalary()));

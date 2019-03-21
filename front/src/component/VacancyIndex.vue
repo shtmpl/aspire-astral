@@ -20,8 +20,7 @@
         <vacancy-store-local v-on:error="showError"></vacancy-store-local>
       </b-tab>
       <b-tab title="HeadHunter">
-        <vacancy-store-remote v-on:error="showError"
-        v-on:vacancy-add="addVacancy"></vacancy-store-remote>
+        <vacancy-store-remote v-on:error="showError"></vacancy-store-remote>
       </b-tab>
     </b-tabs>
   </div>
@@ -58,9 +57,6 @@ export default {
   methods: {
     showError (error) {
       this.errors.push(error)
-    },
-    addVacancy (vacancy) {
-      console.log(`Adding vacancy: ` + vacancy)
     }
   }
 }

@@ -17,7 +17,7 @@
       <b-card-body>
         <b-row align-h="end">
           <b-col cols="auto">
-            <b-button v-bind:variant="varyImportButton"
+            <b-button variant="outline-success"
                       v-on:click="$emit('vacancy-import', { id: id, origin: origin })"> <!--FIXME-->
               <span><i class="fas fa-download"></i></span>
               Import
@@ -41,8 +41,6 @@ import BRow from 'bootstrap-vue/src/components/layout/row'
 import BCol from 'bootstrap-vue/src/components/layout/col'
 import BButton from 'bootstrap-vue/src/components/button/button'
 
-import ApiVacancy from '../api/vacancy'
-
 export default {
   name: 'VacancyOverviewRemote',
   components: {
@@ -61,12 +59,8 @@ export default {
     origin: String,
     datePublished: String,
     title: String,
-    salary: Object
-  },
-  data () {
-    return {
-      imported: false
-    }
+    salary: Object,
+    imported: Boolean
   },
   computed: {
     formatTitle () {
@@ -87,10 +81,6 @@ export default {
       }
 
       return 'Salary: ' + this.formatSalaryRange(salary.from, salary.to) + ' ' + salary.currency
-    },
-    varyImportButton () {
-      console.log('Imported: ' + this.imported)
-      return this.imported ? 'success' : 'outline-success'
     }
   },
   methods: {
@@ -106,15 +96,6 @@ export default {
       }
 
       return 'From ' + from + ' To ' + to
-    },
-    isImportedVacancy () {
-      let repository = 'local'
-
-      ApiVacancy.showVacancy(repository, this.id, this.origin).then(_ => {
-        this.imported = true
-      }).catch(_ => {
-        this.imported = false
-      })
     }
   }
 }
