@@ -13,7 +13,11 @@
         <b-card-text>
           {{ formatSalary }}
         </b-card-text>
+        <b-card-text>
+          {{ formatEmployer }}
+        </b-card-text>
       </b-card-body>
+
       <b-card-body>
         <b-row align-h="end">
           <b-col cols="auto">
@@ -60,6 +64,7 @@ export default {
     datePublished: String,
     title: String,
     salary: Object,
+    employer: Object,
     imported: Boolean
   },
   computed: {
@@ -81,6 +86,14 @@ export default {
       }
 
       return 'Salary: ' + this.formatSalaryRange(salary.from, salary.to) + ' ' + salary.currency
+    },
+    formatEmployer () {
+      let employer = this.employer
+      if (employer === null) {
+        return 'Employer: Unspecified'
+      }
+
+      return `Employer: ${employer.name}`
     }
   },
   methods: {
