@@ -2,11 +2,11 @@ package aspire.astral.integration.response;
 
 import java.util.List;
 
-public class ResponseVacancyContact {
+public class ResponseContact {
 
     private String name;
     private String email;
-    private List<ResponseVacancyContactPhone> phones;
+    private List<ResponseContactPhone> phones;
 
     public String getName() {
         return name;
@@ -24,11 +24,11 @@ public class ResponseVacancyContact {
         this.email = email;
     }
 
-    public List<ResponseVacancyContactPhone> getPhones() {
+    public List<ResponseContactPhone> getPhones() {
         return phones;
     }
 
-    public void setPhones(List<ResponseVacancyContactPhone> phones) {
+    public void setPhones(List<ResponseContactPhone> phones) {
         this.phones = phones;
     }
 }

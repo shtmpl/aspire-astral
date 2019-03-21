@@ -15,8 +15,8 @@ public class ResponseVacancy {
     private Date publishedAt;
     private ResponseSalary salary;
     private ResponseEmployment employment;
-    private ResponseVacancyEmployer employer;
-    private ResponseVacancyContact contacts;
+    private ResponseEmployer employer;
+    private ResponseContact contacts;
 
     public String getId() {
         return id;
@@ -74,19 +74,19 @@ public class ResponseVacancy {
         this.employment = employment;
     }
 
-    public ResponseVacancyEmployer getEmployer() {
+    public ResponseEmployer getEmployer() {
         return employer;
     }
 
-    public void setEmployer(ResponseVacancyEmployer employer) {
+    public void setEmployer(ResponseEmployer employer) {
         this.employer = employer;
     }
 
-    public ResponseVacancyContact getContacts() {
+    public ResponseContact getContacts() {
         return contacts;
     }
 
-    public void setContacts(ResponseVacancyContact contacts) {
+    public void setContacts(ResponseContact contacts) {
         this.contacts = contacts;
     }
 }

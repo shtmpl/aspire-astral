@@ -11,6 +11,7 @@ public class ResponseVacanciesItem {
     @JsonProperty("published_at")
     private Date datePublished;
     private ResponseSalary salary;
+    private ResponseEmployer employer;
 
     public String getId() {
         return id;
@@ -42,5 +43,13 @@ public class ResponseVacanciesItem {
 
     public void setSalary(ResponseSalary salary) {
         this.salary = salary;
+    }
+
+    public ResponseEmployer getEmployer() {
+        return employer;
+    }
+
+    public void setEmployer(ResponseEmployer employer) {
+        this.employer = employer;
     }
 }

@@ -8,12 +8,12 @@ import aspire.astral.domain.Vacancy;
 import aspire.astral.domain.VacancyContact;
 import aspire.astral.domain.VacancyOverview;
 import aspire.astral.integration.HeadHunterClient;
+import aspire.astral.integration.response.ResponseEmployer;
 import aspire.astral.integration.response.ResponseVacancies;
 import aspire.astral.integration.response.ResponseVacanciesItem;
 import aspire.astral.integration.response.ResponseVacancy;
-import aspire.astral.integration.response.ResponseVacancyContact;
-import aspire.astral.integration.response.ResponseVacancyContactPhone;
-import aspire.astral.integration.response.ResponseVacancyEmployer;
+import aspire.astral.integration.response.ResponseContact;
+import aspire.astral.integration.response.ResponseContactPhone;
 import aspire.astral.integration.response.ResponseEmployment;
 import aspire.astral.integration.response.ResponseSalary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +73,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         result.setDatePublished(response.getDatePublished());
         result.setTitle(response.getName());
         result.setSalary(extractSalaryFromResponse(response.getSalary()));
+        result.setEmployer(extractEmployerFromResponse(response.getEmployer()));
 
         return result;
     }
@@ -93,7 +94,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         result.setDescription(response.getDescription());
         result.setSalary(extractSalaryFromResponse(response.getSalary()));
         result.setEmployment(extractEmploymentFromResponse(response.getEmployment()));
-        result.setEmployer(extractEmployerFromResponse(response));
+        result.setEmployer(extractEmployerFromResponse(response.getEmployer()));
         result.addContacts(extractContactsFromResponse(response));
 
         return result;
@@ -141,21 +142,21 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         }
     }
 
-    private static Employer extractEmployerFromResponse(ResponseVacancy response) {
-        ResponseVacancyEmployer employer = response.getEmployer();
-        if (employer == null) {
+    private static Employer extractEmployerFromResponse(ResponseEmployer response) {
+        if (response == null) {
             return null;
         }
 
         Employer result = new Employer();
-        result.setIdExposed(employer.getId());
-        result.setName(employer.getName());
+        result.setIdExposed(response.getId());
+        result.setOrigin(Origin.REMOTE);
+        result.setName(response.getName());
 
         return result;
     }
 
     private static List<VacancyContact> extractContactsFromResponse(ResponseVacancy response) {
-        ResponseVacancyContact contact = response.getContacts();
+        ResponseContact contact = response.getContacts();
         if (contact == null) {
             return null;
         }
@@ -164,9 +165,9 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         result.setName(contact.getName());
         result.setEmail(contact.getEmail());
 
-        List<ResponseVacancyContactPhone> phones = contact.getPhones();
+        List<ResponseContactPhone> phones = contact.getPhones();
         if (phones != null && !phones.isEmpty()) {
-            ResponseVacancyContactPhone phone = phones.get(0);
+            ResponseContactPhone phone = phones.get(0);
             String country = phone.getCountry();
             String city = phone.getCity();
             String number = phone.getNumber();
@@ -187,6 +188,7 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
         private Date datePublished;
         private String title;
         private Salary salary;
+        private Employer employer;
 
         @Override
         public Long getId() {
@@ -240,6 +242,15 @@ public class RemoteVacancyRepositoryImpl implements RemoteVacancyRepository {
 
         public void setSalary(Salary salary) {
             this.salary = salary;
+        }
+
+        @Override
+        public Employer getEmployer() {
+            return employer;
+        }
+
+        public void setEmployer(Employer employer) {
+            this.employer = employer;
         }
     }
 }

@@ -9,6 +9,7 @@ public class ResponseVacancyOverview {
     private Date datePublished;
     private String title;
     private ResponseSalary salary;
+    private ResponseEmployer employer;
 
     public String getId() {
         return id;
@@ -48,5 +49,13 @@ public class ResponseVacancyOverview {
 
     public void setSalary(ResponseSalary salary) {
         this.salary = salary;
+    }
+
+    public ResponseEmployer getEmployer() {
+        return employer;
+    }
+
+    public void setEmployer(ResponseEmployer employer) {
+        this.employer = employer;
     }
 }

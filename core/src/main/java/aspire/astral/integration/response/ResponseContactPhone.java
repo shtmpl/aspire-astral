@@ -1,6 +1,6 @@
 package aspire.astral.integration.response;
 
-public class ResponseVacancyContactPhone {
+public class ResponseContactPhone {
 
     private String country;
     private String city;

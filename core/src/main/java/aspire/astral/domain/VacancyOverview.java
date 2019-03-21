@@ -15,4 +15,6 @@ public interface VacancyOverview {
     String getTitle();
 
     Salary getSalary();
+
+    Employer getEmployer();
 }

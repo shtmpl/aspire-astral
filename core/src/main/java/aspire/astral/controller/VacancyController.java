@@ -222,6 +222,7 @@ public class VacancyController {
         result.setDatePublished(overview.getDatePublished());
         result.setTitle(overview.getTitle());
         result.setSalary(extractResponseFromSalary(overview.getSalary()));
+        result.setEmployer(extractResponseFromEmployer(overview.getEmployer()));
 
         return result;
     }
