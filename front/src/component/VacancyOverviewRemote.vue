@@ -2,20 +2,24 @@
   <div>
     <b-card no-body>
       <b-card-body>
-        <b-card-title>
-          {{ formatTitle }}
-        </b-card-title>
+        <b-row align-h="between">
+          <b-col cols="auto">
+            <b-card-title>
+              {{ formatTitle }}
+            </b-card-title>
+          </b-col>
+          <b-col cols="auto">
+            <b-card-title v-show="validSalary">
+              {{ formatSalary }}
+            </b-card-title>
+          </b-col>
+        </b-row>
+        <b-card-text v-show="validEmployer">
+          {{ formatEmployer }}
+        </b-card-text>
         <b-card-sub-title>
           <small class="text-muted"><em>{{ formatDatePublished }}</em></small>
         </b-card-sub-title>
-      </b-card-body>
-      <b-card-body>
-        <b-card-text>
-          {{ formatSalary }}
-        </b-card-text>
-        <b-card-text>
-          {{ formatEmployer }}
-        </b-card-text>
       </b-card-body>
 
       <b-card-body>
@@ -79,36 +83,45 @@ export default {
 
       return 'Not published'
     },
+    validSalary () {
+      return this.salary && (this.salary.from || this.salary.to) && this.salary.currency
+    },
     formatSalary () {
-      let salary = this.salary
-      if (salary === null) {
-        return 'Salary: Unspecified'
+      if (this.salary === null) {
+        return ''
       }
 
-      return 'Salary: ' + this.formatSalaryRange(salary.from, salary.to) + ' ' + salary.currency
+      console.log(this.formatSalaryRange)
+      console.log(this.formatSalaryCurrency)
+      return `${this.formatSalaryRange} ${this.formatSalaryCurrency}`
+    },
+    formatSalaryRange () {
+      let from = this.salary.from
+      let to = this.salary.to
+
+      switch (true) {
+        case (from === to):
+        case (from === null):
+          return to
+        case (to === null):
+          return from
+        default:
+          return `${from} .. ${to}`
+      }
+    },
+    formatSalaryCurrency () {
+      return this.salary.currency
+    },
+    validEmployer () {
+      return this.employer
     },
     formatEmployer () {
       let employer = this.employer
       if (employer === null) {
-        return 'Employer: Unspecified'
-      }
-
-      return `Employer: ${employer.name}`
-    }
-  },
-  methods: {
-    formatSalaryRange (from, to) {
-      if (from === null && to === null) {
         return 'Unspecified'
-      } else if (from === null) {
-        return 'To ' + to
-      } else if (to === null) {
-        return 'From ' + from
-      } else if (from === to) {
-        return from
       }
 
-      return 'From ' + from + ' To ' + to
+      return employer.name
     }
   }
 }
