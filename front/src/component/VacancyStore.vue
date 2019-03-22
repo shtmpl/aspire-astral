@@ -39,18 +39,34 @@
     <div v-if="vacancies.length === 0">
       <em>No vacancies found</em>
     </div>
-    <div v-else>
+    <div v-else class="mb-2">
       <b-row class="mb-1"
              v-for="(vacancy, idx) in vacancies"
              v-bind:key="`${repository}:${vacancy.id}:${vacancy.origin}`">
         <b-col>
-          <vacancy-overview-remote v-bind="vacancy"
-                                   v-bind:idx="pageIdx(idx)"
-                                   v-bind:repository="repository"
-                                   v-on:vacancy-import="importVacancy"></vacancy-overview-remote>
+          <vacancy-overview v-bind:repository="repository"
+                            v-bind:idx="pageIdx(idx)"
+                            v-bind:vacancy="vacancy"
+                            v-on:vacancy-import="importVacancy"
+                            v-on:vacancy-delete="deleteVacancy"></vacancy-overview>
         </b-col>
       </b-row>
     </div>
+
+    <b-row v-show="vacancies.length > 0" align-h="start">
+      <b-col cols="auto">
+        <b-pagination v-model="paging.page"
+                      v-bind:per-page="paging.size"
+                      v-bind:total-rows="paging.total"/>
+      </b-col>
+      <b-col cols="auto">
+        <b-input-group>
+          <b-input-group-text slot="prepend">Per page</b-input-group-text>
+          <b-form-select v-model="paging.size"
+                         v-bind:options="[{ text: '10', value: 10 }, { text: '25', value: 25 }, { text: '50', value: 50 }]"/>
+        </b-input-group>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -70,10 +86,10 @@ import BFormSelect from 'bootstrap-vue/src/components/form-select/form-select'
 
 import ApiVacancy from '../api/vacancy'
 
-import VacancyOverviewRemote from './VacancyOverviewRemote'
+import VacancyOverview from './VacancyOverview'
 
 export default {
-  name: 'VacancyStoreRemote',
+  name: 'VacancyStore',
   components: {
     BFormSelect,
     BInputGroupText,
@@ -85,11 +101,13 @@ export default {
     BInputGroup,
     BSpinner,
     BPagination,
-    VacancyOverviewRemote
+    VacancyOverview
+  },
+  props: {
+    repository: String
   },
   data () {
     return {
-      repository: 'remote',
       vacancies: [],
       searching: false,
       search: {
@@ -127,7 +145,7 @@ export default {
       if (title) {
         ApiVacancy.searchVacancies(repository, page, size, title).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.slice // FIXME: assoc import field
+          this.vacancies = response.data.slice
         }).catch(error => {
           this.$emit('error', error)
         }).finally(() => {
@@ -136,7 +154,7 @@ export default {
       } else {
         ApiVacancy.indexVacancies(repository, page, size).then(response => {
           this.paging.total = response.data.total
-          this.vacancies = response.data.slice // FIXME: assoc import field
+          this.vacancies = response.data.slice
         }).catch(error => {
           this.$emit('error', error)
         }).finally(() => {
@@ -148,6 +166,15 @@ export default {
       let repository = this.repository
 
       ApiVacancy.importVacancy(repository, vacancy.id, vacancy.origin).then(response => {
+      }).catch(error => {
+        this.$emit('error', error)
+      })
+    },
+    deleteVacancy (vacancy) {
+      let repository = this.repository
+
+      ApiVacancy.deleteVacancy(repository, vacancy.id, vacancy.origin).then(response => {
+        this.findVacancies()
       }).catch(error => {
         this.$emit('error', error)
       })

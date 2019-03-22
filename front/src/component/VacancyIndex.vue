@@ -17,10 +17,12 @@
     <b-tabs vertical pills>
       <b-tab title="Local"
              active>
-        <vacancy-store-local v-on:error="showError"></vacancy-store-local>
+        <vacancy-store repository="local"
+                       v-on:error="showError"></vacancy-store>
       </b-tab>
       <b-tab title="HeadHunter">
-        <vacancy-store-remote v-on:error="showError"></vacancy-store-remote>
+        <vacancy-store repository="remote"
+                       v-on:error="showError"></vacancy-store>
       </b-tab>
     </b-tabs>
   </div>
@@ -30,11 +32,10 @@
 import BAlert from 'bootstrap-vue/src/components/alert/alert'
 import BCol from 'bootstrap-vue/src/components/layout/col'
 import BRow from 'bootstrap-vue/src/components/layout/row'
-
 import BTabs from 'bootstrap-vue/src/components/tabs/tabs'
 import BTab from 'bootstrap-vue/src/components/tabs/tab'
-import VacancyStoreLocal from './VacancyStoreLocal'
-import VacancyStoreRemote from './VacancyStoreRemote'
+
+import VacancyStore from './VacancyStore'
 
 export default {
   name: 'VacancyIndex',
@@ -44,16 +45,13 @@ export default {
     BRow,
     BCol,
     BAlert,
-    VacancyStoreLocal,
-    VacancyStoreRemote
+    VacancyStore
   },
   data () {
     return {
-      errors: [],
-      vacancies: []
+      errors: []
     }
   },
-  computed: {},
   methods: {
     showError (error) {
       this.errors.push(error)

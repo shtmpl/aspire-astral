@@ -25,26 +25,33 @@
       <b-card-footer>
         <b-row align-h="end" no-gutters>
           <b-col cols="auto" class="mr-2">
-            <b-button v-b-modal="`${repository}:${id}:${origin}`"
+            <b-button v-b-modal="`${repository}:${vacancy.id}:${vacancy.origin}`"
                       variant="outline-secondary">
               <span><i class="fas fa-eye"></i></span>
               View
             </b-button>
-            <b-modal v-bind:id="`${repository}:${id}:${origin}`"
+            <b-modal v-bind:id="`${repository}:${vacancy.id}:${vacancy.origin}`"
                      lazy
                      size="xl"
                      centered
-                     scrollable>
+                     scrollable
+                     ok-only
+                     ok-title="Close">
               <vacancy v-bind:repository="repository"
-                       v-bind:id="id"
-                       v-bind:origin="origin"></vacancy>
+                       v-bind:id="vacancy.id"
+                       v-bind:origin="vacancy.origin"></vacancy>
             </b-modal>
           </b-col>
           <b-col cols="auto">
-            <b-button variant="outline-danger"
-                      v-on:click="$emit('vacancy-delete', { id: id, origin: origin })"> <!--FIXME-->
+            <b-button v-if="repository === 'local'" variant="outline-danger"
+                      v-on:click="$emit('vacancy-delete', vacancy)">
               <span><i class="fas fa-trash"></i></span>
               Delete
+            </b-button>
+            <b-button v-else-if="repository === 'remote'" variant="outline-success"
+                      v-on:click="$emit('vacancy-import', vacancy)">
+              <span><i class="fas fa-download"></i></span>
+              Import
             </b-button>
           </b-col>
         </b-row>
@@ -68,7 +75,7 @@ import BModal from 'bootstrap-vue/src/components/modal/modal'
 import BCardFooter from 'bootstrap-vue/src/components/card/card-footer'
 
 export default {
-  name: 'VacancyOverviewLocal',
+  name: 'VacancyOverview',
   components: {
     BCardFooter,
     BModal,
@@ -85,38 +92,33 @@ export default {
   props: {
     repository: String,
     idx: Number,
-    id: String,
-    origin: String,
-    datePublished: String,
-    title: String,
-    salary: Object,
-    employer: Object
+    vacancy: Object
   },
   computed: {
-    formatTitle () {
-      return this.idx + '. ' + this.title
-    },
     formatDatePublished () {
-      let datePublished = this.datePublished
+      let datePublished = this.vacancy.datePublished
       if (datePublished) {
-        return 'Published: ' + moment(datePublished).format('MMMM Do YYYY')
+        return `Published: ${moment(datePublished).format('MMMM Do YYYY')}`
       }
 
       return 'Not published'
     },
+    formatTitle () {
+      return this.idx + '. ' + this.vacancy.title
+    },
     validSalary () {
-      return this.salary && (this.salary.from || this.salary.to) && this.salary.currency
+      return this.vacancy.salary && (this.vacancy.salary.from || this.vacancy.salary.to) && this.vacancy.salary.currency
     },
     formatSalary () {
-      if (this.salary === null) {
+      if (this.vacancy.salary === null) {
         return ''
       }
 
       return `${this.formatSalaryRange} ${this.formatSalaryCurrency}`
     },
     formatSalaryRange () {
-      let from = this.salary.from
-      let to = this.salary.to
+      let from = this.vacancy.salary.from
+      let to = this.vacancy.salary.to
 
       switch (true) {
         case (from === to):
@@ -129,13 +131,13 @@ export default {
       }
     },
     formatSalaryCurrency () {
-      return this.salary.currency
+      return this.vacancy.salary.currency
     },
     validEmployer () {
-      return this.employer
+      return this.vacancy.employer
     },
     formatEmployer () {
-      let employer = this.employer
+      let employer = this.vacancy.employer
       if (employer === null) {
         return 'Unspecified'
       }
