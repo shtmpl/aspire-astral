@@ -11,7 +11,7 @@ export default {
     return API.get(`/vacancy/${repository}/${id}`, { params: { origin: origin } })
   },
   async importVacancy (repository, id, origin) {
-    return API.get(`/vacancy/${repository}/${id}/acquire`, { params: { origin: origin } })
+    return API.get(`/vacancy/${repository}/${id}/pull`, { params: { origin: origin } })
   },
   async deleteVacancy (repository, id, origin) {
     return API.delete(`/vacancy/${repository}/${id}`, { params: { origin: origin } })

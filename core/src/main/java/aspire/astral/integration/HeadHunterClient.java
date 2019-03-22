@@ -19,6 +19,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
 
+/**
+ * HTTP client that enables data exchange with the HeadHunter API.
+ */
 @Component
 public class HeadHunterClient {
 
@@ -48,6 +51,12 @@ public class HeadHunterClient {
                 .build();
     }
 
+    /**
+     * Returns an (optional) collection of found vacancies.
+     *
+     * @param pageable
+     * @return
+     */
     public Optional<ResponseVacancies> getVacancies(Pageable pageable) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(headHunterProperties.getUrl())
@@ -58,6 +67,13 @@ public class HeadHunterClient {
         return requestVacancies(builder.toUriString());
     }
 
+    /**
+     * Retunst an (optional) collection of found vacancies that contains the specified title.
+     *
+     * @param title
+     * @param pageable
+     * @return
+     */
     public Optional<ResponseVacancies> getVacancies(String title, Pageable pageable) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(headHunterProperties.getUrl())
@@ -89,6 +105,12 @@ public class HeadHunterClient {
         }
     }
 
+    /**
+     * Returns a found vacancy for the specified {@code id}.
+     *
+     * @param id
+     * @return
+     */
     public Optional<ResponseVacancy> getVacancy(String id) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(headHunterProperties.getUrl())

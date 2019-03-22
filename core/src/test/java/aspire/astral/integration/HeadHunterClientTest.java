@@ -38,8 +38,6 @@ public class HeadHunterClientTest {
                 .andRespond(withStatus(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body("{}"));
-
-
     }
 
 

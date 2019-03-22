@@ -96,11 +96,11 @@ public class VacancyController {
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }
 
-    @GetMapping("/{repository}/{id}/acquire")
-    public ResponseEntity<ResponseVacancy> acquire(@PathVariable String repository,
-                                                   @PathVariable String id,
-                                                   @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
-        Vacancy vacancy = vacancyService.acquireVacancy(repository, id, origin);
+    @GetMapping("/{repository}/{id}/pull")
+    public ResponseEntity<ResponseVacancy> pull(@PathVariable String repository,
+                                                @PathVariable String id,
+                                                @RequestParam(defaultValue = DEFAULT_ORIGIN) String origin) {
+        Vacancy vacancy = vacancyService.pullVacancy(repository, id, origin);
 
         return ResponseEntity.ok(extractResponseFromVacancy(vacancy));
     }

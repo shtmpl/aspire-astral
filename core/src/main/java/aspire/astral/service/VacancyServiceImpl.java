@@ -106,19 +106,19 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public Vacancy acquireVacancy(String repository, String id, String origin) {
+    public Vacancy pullVacancy(String repository, String id, String origin) {
         switch (repository) {
             case Origin.LOCAL:
                 throw new RepositoryUnsupportedOperationException(
-                        String.format("Operation: %s is not supported for repository: %s", "acquire", repository));
+                        String.format("Operation: %s is not supported for repository: %s", "pull", repository));
             case Origin.REMOTE:
-                return acquireVacancyFromRemoteRepository(id, origin);
+                return pullVacancyFromRemoteRepository(id, origin);
             default:
                 throw new RepositoryUndefinedException();
         }
     }
 
-    private Vacancy acquireVacancyFromRemoteRepository(String id, String origin) {
+    private Vacancy pullVacancyFromRemoteRepository(String id, String origin) {
         Vacancy vacancy = findVacancyInRemoteRepository(id, origin);
 
         return updateVacancyInLocalRepository(id, origin, vacancy);
