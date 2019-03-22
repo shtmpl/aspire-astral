@@ -22,8 +22,24 @@
         </b-card-sub-title>
       </b-card-body>
 
-      <b-card-body>
-        <b-row align-h="end">
+      <b-card-footer>
+        <b-row align-h="end" no-gutters>
+          <b-col cols="auto" class="mr-2">
+            <b-button v-b-modal="`${repository}:${id}:${origin}`"
+                      variant="outline-secondary">
+              <span><i class="fas fa-eye"></i></span>
+              View
+            </b-button>
+            <b-modal v-bind:id="`${repository}:${id}:${origin}`"
+                     lazy
+                     size="xl"
+                     centered
+                     scrollable>
+              <vacancy v-bind:repository="repository"
+                       v-bind:id="id"
+                       v-bind:origin="origin"></vacancy>
+            </b-modal>
+          </b-col>
           <b-col cols="auto">
             <b-button variant="outline-danger"
                       v-on:click="$emit('vacancy-delete', { id: id, origin: origin })"> <!--FIXME-->
@@ -32,7 +48,7 @@
             </b-button>
           </b-col>
         </b-row>
-      </b-card-body>
+      </b-card-footer>
     </b-card>
   </div>
 </template>
@@ -48,10 +64,14 @@ import BCardSubTitle from 'bootstrap-vue/src/components/card/card-sub-title'
 import BRow from 'bootstrap-vue/src/components/layout/row'
 import BCol from 'bootstrap-vue/src/components/layout/col'
 import BButton from 'bootstrap-vue/src/components/button/button'
+import BModal from 'bootstrap-vue/src/components/modal/modal'
+import BCardFooter from 'bootstrap-vue/src/components/card/card-footer'
 
 export default {
   name: 'VacancyOverviewLocal',
   components: {
+    BCardFooter,
+    BModal,
     BButton,
     BCol,
     BRow,
@@ -59,9 +79,11 @@ export default {
     BCardTitle,
     BCardBody,
     BCardText,
-    BCard
+    BCard,
+    'vacancy': () => import('./Vacancy')
   },
   props: {
+    repository: String,
     idx: Number,
     id: String,
     origin: String,
@@ -90,8 +112,6 @@ export default {
         return ''
       }
 
-      console.log(this.formatSalaryRange)
-      console.log(this.formatSalaryCurrency)
       return `${this.formatSalaryRange} ${this.formatSalaryCurrency}`
     },
     formatSalaryRange () {

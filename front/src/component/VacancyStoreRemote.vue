@@ -42,10 +42,11 @@
     <div v-else>
       <b-row class="mb-1"
              v-for="(vacancy, idx) in vacancies"
-             v-bind:key="idx">
+             v-bind:key="`${repository}:${vacancy.id}:${vacancy.origin}`">
         <b-col>
           <vacancy-overview-remote v-bind="vacancy"
                                    v-bind:idx="pageIdx(idx)"
+                                   v-bind:repository="repository"
                                    v-on:vacancy-import="importVacancy"></vacancy-overview-remote>
         </b-col>
       </b-row>
@@ -68,6 +69,7 @@ import BInputGroupText from 'bootstrap-vue/src/components/input-group/input-grou
 import BFormSelect from 'bootstrap-vue/src/components/form-select/form-select'
 
 import ApiVacancy from '../api/vacancy'
+
 import VacancyOverviewRemote from './VacancyOverviewRemote'
 
 export default {

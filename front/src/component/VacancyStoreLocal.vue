@@ -39,13 +39,14 @@
     <div v-if="vacancies.length === 0">
       <em>No vacancies found</em>
     </div>
-    <div v-else>
+    <div v-else class="mb-2">
       <b-row class="mb-1"
              v-for="(vacancy, idx) in vacancies"
-             v-bind:key="idx">
+             v-bind:key="`${repository}:${vacancy.id}:${vacancy.origin}`">
         <b-col>
           <vacancy-overview-local v-bind="vacancy"
                                   v-bind:idx="pageIdx(idx)"
+                                  v-bind:repository="repository"
                                   v-on:vacancy-delete="deleteVacancy"></vacancy-overview-local>
         </b-col>
       </b-row>
@@ -68,6 +69,7 @@ import BInputGroupText from 'bootstrap-vue/src/components/input-group/input-grou
 import BFormSelect from 'bootstrap-vue/src/components/form-select/form-select'
 
 import ApiVacancy from '../api/vacancy'
+
 import VacancyOverviewLocal from './VacancyOverviewLocal'
 
 export default {
