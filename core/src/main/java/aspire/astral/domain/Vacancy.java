@@ -71,11 +71,11 @@ public class Vacancy {
     private Employment employment;
 
     @ManyToOne
-    @JoinColumn(name = "vacancy_owner_id")
+    @JoinColumn(name = "owner_id")
     private Employer employer;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "vacancy_contact_id")
+    @JoinColumn(name = "contact_id")
     private Set<VacancyContact> contacts = new HashSet<>();
 
     public Long getId() {

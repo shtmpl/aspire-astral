@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "employer",
         indexes = {
-                @Index(name = "employer_id_exposed_key", columnList = "idExposed", unique = true),
+                @Index(name = "employer_id_exposed_origin_key", columnList = "idExposed, origin", unique = true),
                 @Index(name = "employer_name_key", columnList = "name", unique = true)
         })
 @SequenceGenerator(name = "employer_id_seq")
