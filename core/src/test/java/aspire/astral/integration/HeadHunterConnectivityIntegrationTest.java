@@ -9,41 +9,43 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.hamcrest.Matchers.*;
 
+/**
+ * Integration test for validating endpoint availability exposed by the external resource.
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class HeadHunterConnectivityIntegrationTest {
+
+    private static final String PATH_VACANCIES = "/vacancies";
+    private static final String PATH_VACANCY_BY_ID = "/vacancies/{id}";
 
     @Autowired
     private HeadHunterProperties headHunterProperties;
 
     @Test
     public void shouldAllowAccessingVacanciesEndpoint() {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(headHunterProperties.getUrl())
-                .path(HeadHunterClient.PATH_VACANCIES)
-                .queryParam(HeadHunterClient.QUERY_PARAM_PAGE, 0)
-                .queryParam(HeadHunterClient.QUERY_PARAM_SIZE, 10);
-
         RestAssured.given()
+                .baseUri(headHunterProperties.getUrl())
                 .header("User-Agent", headHunterProperties.getHeaders().get("User-Agent"))
                 .contentType(ContentType.JSON)
                 .when().log().all()
-                .get(builder.toUriString())
+                .get(PATH_VACANCIES)
                 .then().log().all()
-                .statusCode(not(404));
+                .statusCode(200);
     }
 
     @Test
     public void shouldAllowAccessingVacancyByIdEndpoint() {
         RestAssured.given()
+                .baseUri(headHunterProperties.getUrl())
                 .header("User-Agent", headHunterProperties.getHeaders().get("User-Agent"))
                 .contentType(ContentType.JSON)
                 .when().log().all()
-                .get(headHunterProperties.getUrl() + HeadHunterClient.PATH_VACANCY_BY_ID.replace("{id}", "42"))
+                .get(PATH_VACANCY_BY_ID, "42")
                 .then().log().all()
-                .statusCode(not(404));
+                .statusCode(200);
     }
 }

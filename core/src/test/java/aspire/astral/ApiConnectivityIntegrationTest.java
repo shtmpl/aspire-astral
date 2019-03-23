@@ -1,5 +1,6 @@
 package aspire.astral;
 
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,13 +12,13 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
 /**
- * Integration test for validating the endpoint availability exposed by this program.
+ * Integration test for validating endpoint availability exposed by this program.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(
         classes = Application.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ApiIntegrationTest {
+public class ApiConnectivityIntegrationTest {
 
     private static final String PATH_VACANCY_INDEX = "/api/vacancy/{repository}/index";
     private static final String PATH_VACANCY_SEARCH = "/api/vacancy/{repository}/search?title.like={title}";
@@ -27,7 +28,8 @@ public class ApiIntegrationTest {
 
     @Test
     public void shouldAllowAccessingVacancyIndexEndpoint() {
-        given().baseUri("http://localhost:" + port)
+        RestAssured.given()
+                .baseUri("http://localhost:" + port)
                 .contentType(ContentType.JSON)
                 .when().log().all()
                 .get(PATH_VACANCY_INDEX, "local")
@@ -37,7 +39,8 @@ public class ApiIntegrationTest {
 
     @Test
     public void shouldAllowAccessingVacancySearchEndpoint() {
-        given().baseUri("http://localhost:" + port)
+        RestAssured.given()
+                .baseUri("http://localhost:" + port)
                 .contentType(ContentType.JSON)
                 .when().log().all()
                 .get(PATH_VACANCY_SEARCH, "local", "java")

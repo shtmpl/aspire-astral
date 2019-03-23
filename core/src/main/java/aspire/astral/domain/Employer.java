@@ -10,8 +10,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import java.time.Instant;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
